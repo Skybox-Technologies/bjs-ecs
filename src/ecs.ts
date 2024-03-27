@@ -2,6 +2,8 @@ import { Node } from "@babylonjs/core/node";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import "@babylonjs/core/Physics/v2/physicsEngineComponent";
 import { PhysicsBody } from "@babylonjs/core/Physics/v2/physicsBody";
+import { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
+import { InspectableType } from "@babylonjs/core";
 
 export type Tag = string;
 export interface Comp {
@@ -120,11 +122,7 @@ export function make<T>(comps: CompList<T> = []): Entity<T> {
 // --- components ---
 
 // NodeComp
-export interface NodeComp extends Comp {
-  node: Node;
-  get name(): string;
-}
-export const nodeComp = (node: Node): NodeComp => ({
+export const nodeComp = (node: Node) => ({
   id: "node",
   node,
   get name() {
@@ -134,20 +132,21 @@ export const nodeComp = (node: Node): NodeComp => ({
 nodeComp.id = "node";
 
 // XformComp
-export interface XformComp extends Comp {
-  xform: TransformNode;
-}
-export const xformComp = (xform: TransformNode): XformComp => ({
+export const xformComp = (xform: TransformNode) => ({
   id: "xform",
   xform,
 });
 xformComp.id = "xform";
 
+// MeshComp
+export const meshComp = (mesh: AbstractMesh) => ({
+  id: "mesh",
+  mesh,
+});
+meshComp.id = "mesh";
+
 // PhysicsBodyComp
-export interface PhysicsBodyComp extends Comp {
-  physicsBody: PhysicsBody;
-}
-export const physicsBodyComp = (physicsBody: PhysicsBody): PhysicsBodyComp => ({
+export const physicsBodyComp = (physicsBody: PhysicsBody) => ({
   id: "physicsBody",
   physicsBody,
 });
@@ -177,6 +176,31 @@ export function addEntity<T>(node: Node, comps: CompList<T>) {
   }
   comps.push(nodeComp(node) as T);
   const entity = make(comps);
+
+  // inspector support
+  node.inspectableCustomProperties ??= [];
+  node.inspectableCustomProperties.push(
+    {
+      label: `Entity ID: ${entity.id}`,
+      propertyName: "",
+      type: InspectableType.Tab,
+    },
+    {
+      // label must be uniqie to avoid inspector issue, with different nodes showing same options
+      label: `Components: \n${entity.id}`,
+      propertyName: "",
+      type: InspectableType.Options,
+      options: comps.map((c) => {
+        let id: string;
+        if (typeof c === "string") {
+          id = c;
+        } else {
+          id = (c as {id:string}).id;
+        }
+        return { label: id, value: id};
+      })
+    },
+  )
   node.metadata.entity = entity;
   world.push(entity);
 
@@ -198,7 +222,7 @@ function removeEntityFromWorld(entity: Entity) {
 export function removeEntity(entity: Entity) {
   removeEntityFromWorld(entity);
   // also remove BJS if this is a node
-  const nodeC = entity.comp("node") as NodeComp | undefined;
+  const nodeC = entity.comp("node") as ReturnType<typeof nodeComp> | undefined;
   if (nodeC) {
     nodeC.node.metadata.entity = undefined;
     nodeC.node.dispose();
