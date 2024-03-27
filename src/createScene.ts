@@ -10,7 +10,7 @@ import HavokPhysics from "@babylonjs/havok";
 import { HavokPlugin } from "@babylonjs/core/Physics/v2/Plugins/havokPlugin";
 import { PhysicsBody } from "@babylonjs/core/Physics/v2/physicsBody";
 import { PhysicsMotionType } from "@babylonjs/core/Physics/v2/IPhysicsEnginePlugin";
-import { PhysicsShapeBox, PhysicsShapeSphere } from "@babylonjs/core";
+import { PBRMaterial, PhysicsShapeBox, PhysicsShapeSphere } from "@babylonjs/core";
 import { setupInspector } from "./inspector";
 
 export async function createScene(engine: Engine): Promise<Scene> {
@@ -24,12 +24,19 @@ export async function createScene(engine: Engine): Promise<Scene> {
   // inspector
   setupInspector(scene);
 
+  // environment
+  scene.createDefaultEnvironment({ createGround: false });
+  scene.environmentIntensity = 1.2;
+  scene.imageProcessingConfiguration.toneMappingType = 1;
+  scene.imageProcessingConfiguration.vignetteEnabled = true;
+  
+
   const camera = new FreeCamera("camera1", new Vector3(0, 5, -10), scene);
   camera.setTarget(Vector3.Zero());
   camera.attachControl(true);
 
   const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
-  light.intensity = 0.7;
+  light.intensity = 0.2;
 
   const sphere = MeshBuilder.CreateSphere(
     "sphere",
@@ -37,6 +44,9 @@ export async function createScene(engine: Engine): Promise<Scene> {
     scene
   );
   sphere.position.y = 2;
+  const sphereMat = new PBRMaterial("sphereMat", scene);
+  sphereMat.roughness = 0.7;
+  sphere.material= sphereMat;
   new PhysicsBody(sphere, PhysicsMotionType.DYNAMIC, false, scene).shape =
     new PhysicsShapeSphere(
       Vector3.Zero(),
@@ -50,6 +60,9 @@ export async function createScene(engine: Engine): Promise<Scene> {
     { width: 8, height: 6 },
     scene
   );
+  const groundMat = new PBRMaterial("groundMat", scene);
+  groundMat.roughness = 0.18;
+  ground.material= groundMat;
   new PhysicsBody(ground, PhysicsMotionType.STATIC, false, scene).shape =
     new PhysicsShapeBox(
       Vector3.Zero(),
@@ -68,12 +81,12 @@ export async function createScene(engine: Engine): Promise<Scene> {
   });
 
   // remove from BJS
-//   ground.dispose();
+  //   ground.dispose();
 
-    // remove from world
-//   queryXforms(["ground"]).forEach((entity) => {
-//     removeEntity(entity);
-//   });
+  // remove from world
+  //   queryXforms(["ground"]).forEach((entity) => {
+  //     removeEntity(entity);
+  //   });
 
   const entities2 = queryXforms(["grey"]);
   console.log("entities2:");
