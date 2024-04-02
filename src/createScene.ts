@@ -5,13 +5,18 @@ import "@babylonjs/core/Materials/standardMaterial";
 import { Quaternion, Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 import { Scene } from "@babylonjs/core/scene";
-import { addEntity, queryXforms, removeEntity } from "./ecs";
+import { queryEntities, removeEntity } from "./ecs";
 import HavokPhysics from "@babylonjs/havok";
 import { HavokPlugin } from "@babylonjs/core/Physics/v2/Plugins/havokPlugin";
 import { PhysicsBody } from "@babylonjs/core/Physics/v2/physicsBody";
 import { PhysicsMotionType } from "@babylonjs/core/Physics/v2/IPhysicsEnginePlugin";
-import { PBRMaterial, PhysicsShapeBox, PhysicsShapeSphere } from "@babylonjs/core";
+import {
+  PBRMaterial,
+  PhysicsShapeBox,
+  PhysicsShapeSphere,
+} from "@babylonjs/core";
 import { setupInspector } from "./inspector";
+import { addNodeEntity, queryXforms } from "./bjs-ecs";
 
 export async function createScene(engine: Engine): Promise<Scene> {
   const scene = new Scene(engine);
@@ -29,7 +34,6 @@ export async function createScene(engine: Engine): Promise<Scene> {
   scene.environmentIntensity = 1.2;
   scene.imageProcessingConfiguration.toneMappingType = 1;
   scene.imageProcessingConfiguration.vignetteEnabled = true;
-  
 
   const camera = new FreeCamera("camera1", new Vector3(0, 5, -10), scene);
   camera.setTarget(Vector3.Zero());
@@ -46,14 +50,14 @@ export async function createScene(engine: Engine): Promise<Scene> {
   sphere.position.y = 2;
   const sphereMat = new PBRMaterial("sphereMat", scene);
   sphereMat.roughness = 0.7;
-  sphere.material= sphereMat;
+  sphere.material = sphereMat;
   new PhysicsBody(sphere, PhysicsMotionType.DYNAMIC, false, scene).shape =
     new PhysicsShapeSphere(
       Vector3.Zero(),
       sphere.getRawBoundingInfo().boundingBox.extendSize.x,
       scene
     );
-  addEntity(sphere, ["player", "grey"]);
+  addNodeEntity(sphere, ["player", "grey"]);
 
   const ground = MeshBuilder.CreateGround(
     "ground",
@@ -62,7 +66,7 @@ export async function createScene(engine: Engine): Promise<Scene> {
   );
   const groundMat = new PBRMaterial("groundMat", scene);
   groundMat.roughness = 0.18;
-  ground.material= groundMat;
+  ground.material = groundMat;
   new PhysicsBody(ground, PhysicsMotionType.STATIC, false, scene).shape =
     new PhysicsShapeBox(
       Vector3.Zero(),
@@ -70,7 +74,7 @@ export async function createScene(engine: Engine): Promise<Scene> {
       ground.getRawBoundingInfo().boundingBox.extendSize.scale(2),
       scene
     );
-  addEntity(ground, ["ground", "grey"]);
+  addNodeEntity(ground, ["ground", "grey"]);
 
   console.log("ecs query:");
   const entities = queryXforms(["grey"]);
@@ -80,13 +84,13 @@ export async function createScene(engine: Engine): Promise<Scene> {
     console.log(" pos:", entity.xform.position.toString());
   });
 
-  // remove from BJS
-  //   ground.dispose();
+  // // remove from BJS
+  // ground.dispose();
 
-  // remove from world
-  //   queryXforms(["ground"]).forEach((entity) => {
-  //     removeEntity(entity);
-  //   });
+  // // remove from world
+  // queryEntities(["ground"]).forEach((entity) => {
+  //   removeEntity(entity);
+  // });
 
   const entities2 = queryXforms(["grey"]);
   console.log("entities2:");
