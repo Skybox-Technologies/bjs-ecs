@@ -1,11 +1,12 @@
 export type Tag = string;
 export interface Comp {
   id: Tag;
+  dispose?: () => void;
 }
 export type CompList<T> = Array<T | Tag>;
 
 // component properties that should NOT propagate to entity
-const COMP_DESC = new Set(["id"]);
+const COMP_DESC = new Set(["id", "dispose"]);
 
 //TODO: understand this
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
@@ -25,7 +26,7 @@ export interface EntityRaw {
   comp: (id: Tag) => Comp | undefined;
   addComp: (comp: Comp | Tag) => void;
   is: (tag: Tag | Tag[]) => boolean;
-  dispose?: () => void;
+  dispose: () => void;
 }
 export type Entity<T = any> = EntityRaw & MergeComps<T>;
 
@@ -104,6 +105,13 @@ export function make<T>(comps: CompList<T> = []): Entity<T> {
       } else {
         return !!this.comp(tag);
       }
+    },
+    dispose() {
+      compStates.forEach((comp) => {
+        if(comp.dispose) {
+          comp.dispose();
+        }
+      })
     },
   };
   for (const comp of comps) {

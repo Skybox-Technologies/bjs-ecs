@@ -87,10 +87,10 @@ export async function createScene(engine: Engine): Promise<Scene> {
   // // remove from BJS
   // ground.dispose();
 
-  // // remove from world
-  // queryEntities(["ground"]).forEach((entity) => {
-  //   removeEntity(entity);
-  // });
+  // remove from world
+  queryEntities(["ground"]).forEach((entity) => {
+    removeEntity(entity);
+  });
 
   const entities2 = queryXforms(["grey"]);
   console.log("entities2:");

@@ -5,13 +5,13 @@ import { PhysicsBody } from "@babylonjs/core/Physics/v2/physicsBody";
 import "@babylonjs/core/Physics/v2/physicsEngineComponent";
 import { Node } from "@babylonjs/core/node";
 import {
-    CompFuncList,
-    CompList,
-    EntityQuery,
-    Tag,
-    addEntity,
-    removeEntity,
-    world,
+  CompFuncList,
+  CompList,
+  EntityQuery,
+  Tag,
+  addEntity,
+  removeEntity,
+  world,
 } from "./ecs";
 
 // --- BJS Components ---
@@ -19,6 +19,12 @@ import {
 // NodeComp
 export const nodeComp = (node: Node) => ({
   id: "node",
+  dispose: () => {
+    if (node.metadata.entity) {
+      node.metadata.entity = undefined;
+      node.dispose();
+    }
+  },
   node,
   get name() {
     return node.name;
@@ -102,14 +108,6 @@ export function addNodeEntity<T>(node: Node, comps: CompList<T>) {
       removeEntity(entity);
     }
   });
-
-  // remove node when entity is disposed
-  entity.dispose = () => {
-    if (node.metadata.entity) {
-      node.metadata.entity = undefined;
-      node.dispose();
-    }
-  };
 }
 
 // --- BJS specific Queries ---
