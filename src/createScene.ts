@@ -5,7 +5,7 @@ import "@babylonjs/core/Materials/standardMaterial";
 import { Quaternion, Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 import { Scene } from "@babylonjs/core/scene";
-import { queryEntities, removeEntity } from "./ecs";
+import { entityEvents, queryEntities, removeEntity } from "./ecs";
 import HavokPhysics from "@babylonjs/havok";
 import { HavokPlugin } from "@babylonjs/core/Physics/v2/Plugins/havokPlugin";
 import { PhysicsBody } from "@babylonjs/core/Physics/v2/physicsBody";
@@ -35,13 +35,25 @@ export async function createScene(engine: Engine): Promise<Scene> {
   scene.imageProcessingConfiguration.toneMappingType = 1;
   scene.imageProcessingConfiguration.vignetteEnabled = true;
 
+  // camera
   const camera = new FreeCamera("camera1", new Vector3(0, 5, -10), scene);
   camera.setTarget(Vector3.Zero());
   camera.attachControl(true);
 
+  // light
   const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
   light.intensity = 0.2;
 
+  // entity listeners
+  entityEvents.on("add", (entity) => {
+    console.log("add event:", entity);
+  });
+  entityEvents.on("remove", (entity) => {
+    console.log("remove event:", entity);
+  });
+
+
+  // entities
   const sphere = MeshBuilder.CreateSphere(
     "sphere",
     { diameter: 1, segments: 32 },

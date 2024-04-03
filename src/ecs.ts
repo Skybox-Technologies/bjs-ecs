@@ -1,3 +1,5 @@
+import mitt from "mitt";
+
 export type Tag = string;
 export interface Comp {
   id: Tag;
@@ -107,6 +109,7 @@ export function make<T>(comps: CompList<T> = []): Entity<T> {
       }
     },
     dispose() {
+      entityEvents.emit('remove', this);
       compStates.forEach((comp) => {
         if(comp.dispose) {
           comp.dispose();
@@ -124,6 +127,12 @@ export function make<T>(comps: CompList<T> = []): Entity<T> {
 // --- world ---
 export const world: Entity[] = [];
 
+export type EntityEvents = {
+  add: Entity;
+  remove: Entity;
+};
+export const entityEvents = mitt<EntityEvents>();
+
 /**
  * Add an entity to the world.
  * @param comps A list of components to add to the entity
@@ -131,6 +140,7 @@ export const world: Entity[] = [];
 export function addEntity<T>(comps: CompList<T>): Entity<T> {
   const entity = make(comps);
   world.push(entity);
+  entityEvents.emit('add', entity);
   return entity;
 }
 
