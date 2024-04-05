@@ -66,13 +66,13 @@ export function addNodeEntity<T>(node: Node, comps: CompList<T>) {
   node.metadata ??= {};
   if (node instanceof TransformNode) {
     const xform = node as TransformNode;
-    comps.push(xformComp(xform) as T);
+    comps.push(xformComp(xform) as unknown as T);
 
     if (xform.physicsBody) {
-      comps.push(physicsBodyComp(xform.physicsBody) as T);
+      comps.push(physicsBodyComp(xform.physicsBody) as unknown as T);
     }
   }
-  comps.push(nodeComp(node) as T);
+  comps.push(nodeComp(node) as unknown as T);
   const entity = addEntity(comps);
 
   // inspector support
@@ -93,7 +93,7 @@ export function addNodeEntity<T>(node: Node, comps: CompList<T>) {
         if (typeof c === "string") {
           id = c;
         } else {
-          id = (c as { id: string }).id;
+          id = (c as unknown as { id: string }).id;
         }
         return { label: id, value: id };
       }),

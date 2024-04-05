@@ -158,7 +158,6 @@ export function removeEntity(entity: Entity) {
 
 // --- query ---
 export type CompFuncList<T> = Array<T | Tag>;
-type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
 type ReturnTypeOFUnion<T extends (...args: any[]) => any> = ReturnType<T>;
 export type EntityQuery<T extends (...args: any[]) => any> = EntityRaw &
   MergeComps<ReturnTypeOFUnion<T>>;
