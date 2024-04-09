@@ -1,3 +1,14 @@
+## 0.1.7 (2024-04-09)
+
+
+### 🩹 Fixes
+
+- tags > keywords in package.json ([c100efd](https://github.com/Skybox-Technologies/bjs-ecs/commit/c100efd))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+
 ## 0.1.6 (2024-04-09)
 
 This was a version bump only, there were no code changes.
