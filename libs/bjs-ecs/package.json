@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/Skybox-Technologies/bjs-ecs"},
   "description": "A simple ECS for Babylon.js",
-  "tags": ["ecs", "entity-component-system", "babylon.js"],
+  "keywords": ["ecs", "entity-component-system", "babylon.js"],
   "dependencies": {
     "mitt": "^3.0.1"
   },
