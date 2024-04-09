@@ -1,6 +1,6 @@
 # bjs-esc
 
-ECS for Babylon.js
+[ECS](https://en.wikipedia.org/wiki/Entity_component_system) for [Babylon.js](https://babylonjs.com/)
 
 ## Sample
 
@@ -94,3 +94,7 @@ function setupScene(scene: Scene) {
   });
 }
 ```
+
+## Acknowledgements
+
+- The interface and TypeScript Fu for adding entities with components, is inspired by [Kaboom.js](https://kaboomjs.com/)
