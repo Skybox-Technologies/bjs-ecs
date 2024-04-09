@@ -3,6 +3,11 @@
   "version": "0.0.1",
   "private": false,
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Skybox-Technologies/bjs-ecs"},
+  "description": "A simple ECS for Babylon.js",
+  "tags": ["ecs", "entity-component-system", "babylon.js"],
   "dependencies": {
     "mitt": "^3.0.1"
   },

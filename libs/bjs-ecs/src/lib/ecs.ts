@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mitt from "mitt";
 
 export type Tag = string;
