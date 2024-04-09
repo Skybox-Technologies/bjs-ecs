@@ -25,6 +25,7 @@ export default {
     '^.+\\.[tj]s$': ['@swc/jest', swcJestConfig],
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
+  extensionsToTreatAsEsm: ['.ts'],
   testEnvironment: 'node',
   coverageDirectory: '../../coverage/libs/bjs-ecs',
 };
