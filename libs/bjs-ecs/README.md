@@ -21,12 +21,12 @@ npm install @skyboxgg/bjs-ecs
 
 ## Usage
 
-Core ECS:
+### Core ECS:
 
 ```ts
 import { addEntity, queryEntities, removeEntity } from '@skyboxgg/bjs-ecs';
 
-// add entity with tgs
+// add entity with tags
 const player = addEntity(['actor', 'player']);
 
 // define components
@@ -57,4 +57,40 @@ doors.forEach((door) => {
   console.log('door color:', door.color);
   console.log('door lock status:', door.locked);
 });
+
+// remove entity from world
+removeEntity(doors[0]);
+```
+
+### With Babylon.js
+
+Babylon Nodes can be added as entities, and subtypes (TransformNode, Mesh) as well as PhysicsBody
+are detected as additional components.
+
+Nodes are automatically disposed from the Babylon scenegraph when removed from the ECS world and vice versa.
+
+There is also initial support to show entity ID and list of components / tags, for Nodes in the Babylon inspector
+
+```ts
+import { Scene } from '@babylonjs/core/scene';
+import { addNodeEntity, queryXforms } from '@skyboxgg/bjs-ecs';
+
+function setupScene(scene: Scene) {
+  // other scene setup: camera, lights, etc
+
+  // create and add entities
+  const sphere1 = MeshBuilder.CreateSphere('player1', { diameter: 1, segments: 32 }, scene);
+  addNodeEntity(sphere1, ['player']);
+
+  const sphere2 = MeshBuilder.CreateSphere('player2', { diameter: 1, segments: 32 }, scene);
+  addNodeEntity(sphere2, ['player']);
+
+  const ground = MeshBuilder.CreateGround('ground', { width: 8, height: 6 }, scene);
+  addNodeEntity(ground, ['ground']);
+
+  // query transform entities (with typing)
+  queryXforms(['player']).forEach((player) => {
+    player.xform.position.y += 2;
+  });
+}
 ```
