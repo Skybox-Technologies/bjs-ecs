@@ -55,6 +55,7 @@
     }
   },
   "release": {
+    "projects": ["bjs-ecs"],
     "version": {
       "preVersionCommand": "npx nx run-many -t build"
     }
