@@ -9,7 +9,10 @@
   "devDependencies": {
     "@swc/helpers": "~0.5.2"
   },
-  "type": "commonjs",
+  "peerDependencies": {
+    "@babylonjs/core": "^7.1.0"
+  },
+  "type": "module",
   "main": "./src/index.js",
   "typings": "./src/index.d.ts"
 }
