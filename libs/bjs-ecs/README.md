@@ -1,11 +1,13 @@
 # bjs-esc
 
-This library was generated with [Nx](https://nx.dev).
+ECS for Babylon.js
 
-## Building
+## Sample
 
-Run `nx build bjs-esc` to build the library.
+To run the sample:
+```
+npm install
+npx nx run sample:serve
+```
 
-## Running unit tests
-
-Run `nx test bjs-esc` to execute the unit tests via [Jest](https://jestjs.io).
+See also [CodeSandbox](https://codesandbox.io/p/devbox/bjs-ecs-sample-sw27pj?file=%2Fsrc%2FcreateScene.ts)
