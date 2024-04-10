@@ -2,11 +2,25 @@
 
 [ECS](https://en.wikipedia.org/wiki/Entity_component_system) for [Babylon.js](https://babylonjs.com/)
 
+## Objectives
+
+Provide an easy way to help structure your game logic for Babylon.js based projects using ECS.
+This is (currently) more about the functionality of ECS than the performance benefits.
+In short if you are looking for an ECS implementation to handle 10Ks of entities,
+you may want to look elsewhere.
+
+- ✅ (current) Focus on developer ergonomics, e.g. being TypeScript idiomatic
+- ✅ (current) Tight integration with Babylon.js
+- ⏭️ (next) Optimize query performance
+- ❓ (not currently in scope) Optimized data storage for Entities/Components
+
 ## Sample
 
 To run the sample:
 
 ```
+git clone https://github.com/Skybox-Technologies/bjs-ecs.git
+cd bjs-ecs
 npm install
 npx nx run sample:serve
 ```
@@ -70,6 +84,8 @@ are detected as additional components.
 Nodes are automatically disposed from the Babylon scenegraph when removed from the ECS world and vice versa.
 
 There is also initial support to show entity ID and list of components / tags, for Nodes in the Babylon inspector
+
+<img src="./inspector.png" width="168"/>
 
 ```ts
 import { Scene } from '@babylonjs/core/scene';

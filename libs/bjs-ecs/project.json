@@ -20,7 +20,7 @@
         "outputPath": "dist/libs/bjs-ecs",
         "main": "libs/bjs-ecs/src/index.ts",
         "tsConfig": "libs/bjs-ecs/tsconfig.lib.json",
-        "assets": ["libs/bjs-ecs/*.md"]
+        "assets": ["libs/bjs-ecs/*.md", "libs/bjs-ecs/*.png"]
       }
     },
     "nx-release-publish": {
