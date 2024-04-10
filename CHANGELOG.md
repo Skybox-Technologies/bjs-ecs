@@ -1,3 +1,14 @@
+## 0.1.12 (2024-04-10)
+
+
+### 🩹 Fixes
+
+- add inspector images at root to have it work in npm ([554a096](https://github.com/Skybox-Technologies/bjs-ecs/commit/554a096))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+
 ## 0.1.11 (2024-04-10)
 
 
