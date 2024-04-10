@@ -1,3 +1,14 @@
+## 0.1.11 (2024-04-10)
+
+
+### 🩹 Fixes
+
+- inspector image for NPM ([4ffd5b2](https://github.com/Skybox-Technologies/bjs-ecs/commit/4ffd5b2))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+
 ## 0.1.10 (2024-04-10)
 
 
