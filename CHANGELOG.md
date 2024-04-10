@@ -1,3 +1,14 @@
+## 0.1.10 (2024-04-10)
+
+
+### 🩹 Fixes
+
+- add CHANGELOG update from release ([7db70c0](https://github.com/Skybox-Technologies/bjs-ecs/commit/7db70c0))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+
 ## 0.1.9 (2024-04-09)
 
 This was a version bump only, there were no code changes.
