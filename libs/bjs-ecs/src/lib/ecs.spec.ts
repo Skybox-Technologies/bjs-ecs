@@ -3,12 +3,10 @@ import { addEntity, queryEntities, removeEntity } from './ecs';
 function door(isLocked: boolean) {
   return { id: 'door', locked: isLocked };
 }
-door.id = 'door';
 
 function color(hex: string) {
   return { id: 'color', color: hex };
 }
-color.id = 'color';
 
 describe('handle entities and queries', () => {
   it('can add entities with tags', () => {

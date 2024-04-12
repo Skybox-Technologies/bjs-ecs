@@ -5,6 +5,7 @@ import { PhysicsBody } from "@babylonjs/core/Physics/v2/physicsBody";
 import "@babylonjs/core/Physics/v2/physicsEngineComponent";
 import { Node } from "@babylonjs/core/node";
 import {
+  CompFunc,
   CompFuncList,
   CompList,
   EntityQuery,
@@ -16,8 +17,8 @@ import {
 
 // --- BJS Components ---
 
-// NodeComp
-export const nodeComp = (node: Node) => ({
+// Node
+export const node = (node: Node) => ({
   id: "node",
   dispose: () => {
     if (node.metadata.entity) {
@@ -30,28 +31,24 @@ export const nodeComp = (node: Node) => ({
     return node.name;
   },
 });
-nodeComp.id = "node";
 
-// XformComp
-export const xformComp = (xform: TransformNode) => ({
+// Xform
+export const xform = (xform: TransformNode) => ({
   id: "xform",
   xform,
 });
-xformComp.id = "xform";
 
 // MeshComp
-export const meshComp = (mesh: AbstractMesh) => ({
+export const mesh = (mesh: AbstractMesh) => ({
   id: "mesh",
   mesh,
 });
-meshComp.id = "mesh";
 
-// PhysicsBodyComp
-export const physicsBodyComp = (physicsBody: PhysicsBody) => ({
+// PhysicsBody
+export const physicsBody = (physicsBody: PhysicsBody) => ({
   id: "physicsBody",
   physicsBody,
 });
-physicsBodyComp.id = "physicsBody";
 
 /**
  * Add a BabylonJS Node as an entity.
@@ -59,31 +56,31 @@ physicsBodyComp.id = "physicsBody";
  * - NodeComp
  * - XformComp if the node is a TransformNode
  * - PhysicsBodyComp if the node has a physicsBody property
- * @param node The BabylonJS Node to add use as the entity
+ * @param bjsNode The BabylonJS Node to add use as the entity
  * @param comps A list of components to add to the entity
  */
-export function addNodeEntity<T>(node: Node, comps: CompList<T>) {
-  node.metadata ??= {};
-  if (node instanceof TransformNode) {
-    const xform = node as TransformNode;
-    comps.push(xformComp(xform) as unknown as T);
+export function addNodeEntity<T>(bjsNode: Node, comps: CompList<T>) {
+  bjsNode.metadata ??= {};
+  if (bjsNode instanceof TransformNode) {
+    const xformNode = bjsNode as TransformNode;
+    comps.push(xform(xformNode) as unknown as T);
 
-    if (xform.physicsBody) {
-      comps.push(physicsBodyComp(xform.physicsBody) as unknown as T);
+    if (xformNode.physicsBody) {
+      comps.push(physicsBody(xformNode.physicsBody) as unknown as T);
     }
   }
-  comps.push(nodeComp(node) as unknown as T);
+  comps.push(node(bjsNode) as unknown as T);
   const entity = addEntity(comps);
 
   // inspector support
-  node.inspectableCustomProperties ??= [];
-  Object.defineProperties(node, {
+  bjsNode.inspectableCustomProperties ??= [];
+  Object.defineProperties(bjsNode, {
     entityId: {
       get: () => entity.id.toFixed(),
       enumerable: true,
     }
   });
-  node.inspectableCustomProperties.push(
+  bjsNode.inspectableCustomProperties.push(
     {
       label: `Entity ID`,
       propertyName: "entityId",
@@ -104,50 +101,51 @@ export function addNodeEntity<T>(node: Node, comps: CompList<T>) {
       }),
     }
   );
-  node.metadata.entity = entity;
+  bjsNode.metadata.entity = entity;
 
   // remove entity when node is disposed
-  node.onDisposeObservable.addOnce(() => {
-    if (node.metadata.entity) {
-      node.metadata.entity = undefined;
+  bjsNode.onDisposeObservable.addOnce(() => {
+    if (bjsNode.metadata.entity) {
+      bjsNode.metadata.entity = undefined;
       removeEntity(entity);
     }
   });
 }
 
 // --- BJS specific Queries ---
-type NodeQueryDefaultComps = typeof nodeComp;
+type DefaultCompEntityQuery<T extends CompFunc, D extends CompFunc>
+  = EntityQuery<
+  T extends { id: string } ? T | D : D
+>
+
+type NodeQueryDefaultComps = typeof node;
 /**
- * Query for Node entities, i.e. entities with NodeComp.
+ * Query for Node entities, i.e. entities with node component.
  * @param comps list of additional components or tags the entity should have
  * @returns list of entities that match the query
  */
-export function queryNodes<T extends (...args: any[]) => any>(
+export function queryNodes<T extends CompFunc>(
   comps: CompFuncList<T>
-): EntityQuery<
-  T extends { id: string } ? T | NodeQueryDefaultComps : NodeQueryDefaultComps
->[] {
+): DefaultCompEntityQuery<T, NodeQueryDefaultComps>[] {
   const tags = comps.map((c) =>
-    typeof c === "string" ? c : (c as any).id
+    typeof c === "string" ? c : (c as CompFunc).name
   ) as Tag[];
-  tags.push(nodeComp.id);
-  return world.filter((e) => e.is(tags)) as any;
+  tags.push(node.name);
+  return world.filter((e) => e.is(tags)) as DefaultCompEntityQuery<T, NodeQueryDefaultComps>[];
 }
 
-type XformQueryDefaultComps = typeof nodeComp | typeof xformComp;
+type XformQueryDefaultComps = typeof node | typeof xform;
 /**
  * Query for Xform entities, i.e. entities with XformComp and NodeComp.
  * @param comps list of additional components or tags the entity should have
  * @returns list of entities that match the query
  */
-export function queryXforms<T extends (...args: any[]) => any>(
+export function queryXforms<T extends CompFunc>(
   comps: CompFuncList<T>
-): EntityQuery<
-  T extends { id: string } ? T | XformQueryDefaultComps : XformQueryDefaultComps
->[] {
+): DefaultCompEntityQuery<T, XformQueryDefaultComps>[] {
   const tags = comps.map((c) =>
-    typeof c === "string" ? c : (c as any).id
+    typeof c === "string" ? c : (c as CompFunc).name
   ) as Tag[];
-  tags.push(nodeComp.id, xformComp.id);
-  return world.filter((e) => e.is(tags)) as any;
+  tags.push(node.name, xform.name);
+  return world.filter((e) => e.is(tags)) as DefaultCompEntityQuery<T, XformQueryDefaultComps>[];
 }

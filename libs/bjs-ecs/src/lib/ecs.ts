@@ -158,9 +158,12 @@ export function removeEntity(entity: Entity) {
 }
 
 // --- query ---
+export type CompFunc = (...args: any[]) => Comp;
+type CompReturnType<T extends CompFunc> = T extends (...args: any) => infer R ? R : any;
+
 export type CompFuncList<T> = Array<T | Tag>;
-type ReturnTypeOFUnion<T extends (...args: any[]) => any> = ReturnType<T>;
-export type EntityQuery<T extends (...args: any[]) => any> = EntityRaw &
+type ReturnTypeOFUnion<T extends CompFunc> = CompReturnType<T>;
+export type EntityQuery<T extends CompFunc> = EntityRaw &
   MergeComps<ReturnTypeOFUnion<T>>;
 
 /**
@@ -168,11 +171,11 @@ export type EntityQuery<T extends (...args: any[]) => any> = EntityRaw &
  * @param comps list of components or tags the entity should have
  * @returns list of entities that match the query
  */
-export function queryEntities<T extends (...args: any[]) => any>(
+export function queryEntities<T extends CompFunc>(
   comps: CompFuncList<T>
 ): EntityQuery<T>[] {
   const tags = comps.map((c) =>
-    typeof c === "string" ? c : (c as any).id
+    typeof c === "string" ? c : (c as CompFunc).name
   ) as Tag[];
   return world.filter((e) => e.is(tags)) as unknown as EntityQuery<T>[];
 }

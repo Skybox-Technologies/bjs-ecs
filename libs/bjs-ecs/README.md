@@ -47,12 +47,10 @@ const player = addEntity(['actor', 'player']);
 function color(hex: string) {
   return { id: 'color', color: hex };
 }
-color.id = 'color';
 
 function door(isLocked: boolean) {
   return { id: 'door', locked: isLocked };
 }
-door.id = 'door';
 
 // add entity with components (and tag)
 // component properties propagate to entity with typing
