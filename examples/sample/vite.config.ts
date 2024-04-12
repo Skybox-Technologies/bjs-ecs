@@ -32,13 +32,6 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    exclude: [
-      '@babylonjs/gui',
-      '@babylonjs/gui-editor',
-      '@babylonjs/havok',
-      '@babylonjs/loaders',
-      '@babylonjs/materials',
-      '@babylonjs/serializers',
-    ],
+    exclude: ['@babylonjs/havok'],
   },
 });
