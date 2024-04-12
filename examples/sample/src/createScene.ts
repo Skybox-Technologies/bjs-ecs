@@ -21,7 +21,7 @@ import {
   queryXforms,
   removeEntity,
 } from '@skyboxgg/bjs-ecs';
-import { setupInspector } from './inspector';
+import { setupInspector, showInspector } from './inspector';
 
 export async function createScene(engine: Engine): Promise<Scene> {
   const scene = new Scene(engine);
@@ -33,6 +33,7 @@ export async function createScene(engine: Engine): Promise<Scene> {
 
   // inspector
   setupInspector(scene);
+  showInspector(true, scene);
 
   // environment
   scene.createDefaultEnvironment({ createGround: false });

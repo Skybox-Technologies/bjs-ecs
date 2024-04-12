@@ -85,7 +85,7 @@ Nodes are automatically disposed from the Babylon scenegraph when removed from t
 
 There is also initial support to show entity ID and list of components / tags, for Nodes in the Babylon inspector
 
-![Inspector Support](./inspector.png)
+![Inspector Support](https://raw.githubusercontent.com/Skybox-Technologies/bjs-ecs/main/libs/bjs-ecs/inspector.png)
 
 ```ts
 import { Scene } from '@babylonjs/core/scene';
