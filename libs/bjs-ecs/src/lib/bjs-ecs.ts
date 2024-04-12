@@ -77,16 +77,21 @@ export function addNodeEntity<T>(node: Node, comps: CompList<T>) {
 
   // inspector support
   node.inspectableCustomProperties ??= [];
+  Object.defineProperties(node, {
+    entityId: {
+      get: () => entity.id.toFixed(),
+      enumerable: true,
+    }
+  });
   node.inspectableCustomProperties.push(
     {
-      label: `Entity ID: ${entity.id}`,
-      propertyName: "",
-      type: InspectableType.Tab,
+      label: `Entity ID`,
+      propertyName: "entityId",
+      type: InspectableType.String,
     },
     {
-      // label must be unique to avoid inspector issue, with different nodes showing same options
-      label: `Components: \n${entity.id}`,
-      propertyName: "",
+      label: `Components`,
+      propertyName: "entityId",
       type: InspectableType.Options,
       options: comps.map((c) => {
         let id: string;
