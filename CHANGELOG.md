@@ -1,3 +1,14 @@
+## 0.1.14 (2024-04-12)
+
+
+### 🚀 Features
+
+- tweak typings, use fn.name for comp id ([3f658cc](https://github.com/Skybox-Technologies/bjs-ecs/commit/3f658cc))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+
 ## 0.1.13 (2024-04-12)
 
 
