@@ -1,3 +1,20 @@
+## 0.1.13 (2024-04-12)
+
+
+### 🚀 Features
+
+- don't remove ground in sample ([7b87c04](https://github.com/Skybox-Technologies/bjs-ecs/commit/7b87c04))
+- update inspector integration ([6e45fab](https://github.com/Skybox-Technologies/bjs-ecs/commit/6e45fab))
+- update inspector integration ([3c2e961](https://github.com/Skybox-Technologies/bjs-ecs/commit/3c2e961))
+
+### 🩹 Fixes
+
+- sample inspector build ([d84e643](https://github.com/Skybox-Technologies/bjs-ecs/commit/d84e643))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+
 ## 0.1.12 (2024-04-10)
 
 
