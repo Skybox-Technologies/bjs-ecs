@@ -1,3 +1,15 @@
+## 0.2.0 (2024-04-15)
+
+
+### 🚀 Features
+
+- internal support for multiple worlds ([4f1e43f](https://github.com/Skybox-Technologies/bjs-ecs/commit/4f1e43f))
+- initial archetypes ([bb7102f](https://github.com/Skybox-Technologies/bjs-ecs/commit/bb7102f))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+
 ## 0.1.15 (2024-04-15)
 
 
