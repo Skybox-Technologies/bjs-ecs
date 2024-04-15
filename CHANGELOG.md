@@ -1,3 +1,20 @@
+## 0.1.15 (2024-04-15)
+
+
+### 🚀 Features
+
+- add initial benchmark ([8851f47](https://github.com/Skybox-Technologies/bjs-ecs/commit/8851f47))
+- update benchmark - clear world before each iteration - use 20 archetypes with 1-5 components ([babcf93](https://github.com/Skybox-Technologies/bjs-ecs/commit/babcf93))
+
+### 🩹 Fixes
+
+- typings for queryXfroms ([45d48f1](https://github.com/Skybox-Technologies/bjs-ecs/commit/45d48f1))
+- testing config ([b76382f](https://github.com/Skybox-Technologies/bjs-ecs/commit/b76382f))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+
 ## 0.1.14 (2024-04-12)
 
 
