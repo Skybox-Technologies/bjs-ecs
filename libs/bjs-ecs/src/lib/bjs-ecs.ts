@@ -60,7 +60,10 @@ type DefaultCompEntityQuery<
 
 declare module './ecs' {
   export interface World {
-    addNodeEntity<T>(bjsNode: Node, comps: CompList<T>): void;
+    addNodeEntity<T extends { id: string }>(
+      bjsNode: Node,
+      comps: CompList<T>
+    ): void;
     queryNodes<T extends CompFunc>(
       comps: CompFuncList<T>
     ): DefaultCompEntityQuery<T, NodeQueryDefaultComps>[];
@@ -70,7 +73,7 @@ declare module './ecs' {
   }
 }
 
-World.prototype.addNodeEntity = function <T>(
+World.prototype.addNodeEntity = function <T extends { id: string }>(
   bjsNode: Node,
   comps: CompList<T>
 ) {
@@ -93,11 +96,20 @@ World.prototype.addNodeEntity = function <T>(
       get: () => entity.id.toFixed(),
       enumerable: true,
     },
+    archetype: {
+      get: () => entity.archetype.toString(),
+      enumerable: true,
+    },
   });
   bjsNode.inspectableCustomProperties.push(
     {
       label: `Entity ID`,
       propertyName: 'entityId',
+      type: InspectableType.String,
+    },
+    {
+      label: `Archetype`,
+      propertyName: 'archetype',
       type: InspectableType.String,
     },
     {

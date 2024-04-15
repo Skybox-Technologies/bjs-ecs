@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import mitt from "mitt";
+import mitt from 'mitt';
 
 export type Tag = string;
 export interface Comp {
@@ -8,8 +8,23 @@ export interface Comp {
 }
 export type CompList<T> = Array<T | Tag>;
 
+type Archetype = bigint;
+
+const compCodes = new Map<string, Archetype>();
+function getCompCode(comp: string) {
+  let code = compCodes.get(comp);
+  if (code === undefined) {
+    code = 1n << BigInt(compCodes.size);
+    compCodes.set(comp, code);
+  }
+  return code;
+}
+function getArchetype(comps: string[]): Archetype {
+  return comps.reduce((acc, comp) => acc | getCompCode(comp), 0n);
+}
+
 // component properties that should NOT propagate to entity
-const COMP_DESC = new Set(["id", "dispose"]);
+const COMP_DESC = new Set(['id', 'dispose']);
 
 //TODO: understand this
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
@@ -26,6 +41,7 @@ export type MergeComps<T> = Omit<MergeObj<T>, keyof Comp>;
 
 export interface EntityRaw {
   id: number;
+  archetype: bigint;
   comp: (id: Tag) => Comp | undefined;
   addComp: (comp: Comp | Tag) => void;
   is: (tag: Tag | Tag[]) => boolean;
@@ -38,11 +54,15 @@ export const uid = (() => {
   return () => id++;
 })();
 
-export function make<T>(comps: CompList<T> = []): Entity<T> {
+export function make<T extends { id: string }>(
+  comps: CompList<T> = []
+): Entity<T> {
   const compStates = new Map<Tag, Comp>();
   const ent: EntityRaw = {
     id: uid(),
-
+    archetype: getArchetype(
+      comps.map((c) => (typeof c === 'string' ? c : c.id))
+    ),
     comp(id: Tag): Comp | undefined {
       return compStates.get(id);
     },
@@ -54,7 +74,7 @@ export function make<T>(comps: CompList<T> = []): Entity<T> {
       }
 
       // tag
-      if (typeof comp === "string") {
+      if (typeof comp === 'string') {
         return this.addComp({
           id: comp,
         });
@@ -70,7 +90,7 @@ export function make<T>(comps: CompList<T> = []): Entity<T> {
         const prop = Object.getOwnPropertyDescriptor(comp, k);
 
         if (prop) {
-          if (typeof prop.value === "function") {
+          if (typeof prop.value === 'function') {
             (comp as any)[k] = (comp as any)[k].bind(this);
           }
 
@@ -100,7 +120,7 @@ export function make<T>(comps: CompList<T> = []): Entity<T> {
       }
     },
     is(tag: Tag | Tag[]): boolean {
-      if (tag === "*") {
+      if (tag === '*') {
         return true;
       }
       if (Array.isArray(tag)) {
@@ -112,10 +132,10 @@ export function make<T>(comps: CompList<T> = []): Entity<T> {
     dispose() {
       entityEvents.emit('remove', this);
       compStates.forEach((comp) => {
-        if(comp.dispose) {
+        if (comp.dispose) {
           comp.dispose();
         }
-      })
+      });
     },
   };
   for (const comp of comps) {
@@ -127,7 +147,9 @@ export function make<T>(comps: CompList<T> = []): Entity<T> {
 
 // --- query  types ---
 export type CompFunc = (...args: any[]) => Comp;
-type CompReturnType<T extends CompFunc> = T extends (...args: any) => infer R ? R : any;
+type CompReturnType<T extends CompFunc> = T extends (...args: any) => infer R
+  ? R
+  : any;
 
 export type CompFuncList<T> = Array<T | Tag>;
 type ReturnTypeOFUnion<T extends CompFunc> = CompReturnType<T>;
@@ -141,36 +163,54 @@ export type EntityEvents = {
 };
 
 export class World {
-  entities: Entity[] = [];
+  archetypes = new Map<Archetype, Entity[]>();
   entityEvents = mitt<EntityEvents>();
   clear() {
-    this.entities.forEach((e) => {
-      e.dispose();
+    this.archetypes.forEach((entities) => {
+      entities.forEach((e) => {
+        e.dispose();
+      });
     });
-    this.entities = [];
+    this.archetypes.clear();
   }
-  addEntity<T>(comps: CompList<T>): Entity<T> {
+  addEntity<T extends { id: string }>(comps: CompList<T>): Entity<T> {
     const entity = make(comps);
-    this.entities.push(entity);
+    const archType = this.archetypes.get(entity.archetype);
+    if (archType) {
+      archType.push(entity);
+    } else {
+      this.archetypes.set(entity.archetype, [entity]);
+    }
     entityEvents.emit('add', entity);
     return entity;
   }
   removeEntity(entity: Entity) {
-    const index = this.entities.indexOf(entity);
-    if (index !== -1) {
-      const removed = this.entities.splice(index, 1);
-      removed.forEach((e) => {
-        if (e.dispose) {
-          e.dispose();
-        }
-      });
+    const archetype = this.archetypes.get(entity.archetype);
+    if (archetype) {
+      const index = archetype.indexOf(entity);
+      if (index !== -1) {
+        const removed = archetype.splice(index, 1);
+        removed.forEach((e) => {
+          if (e.dispose) {
+            e.dispose();
+          }
+        });
+      }
     }
   }
   queryEntities<T extends CompFunc>(comps: CompFuncList<T>): EntityQuery<T>[] {
     const tags = comps.map((c) =>
-      typeof c === "string" ? c : (c as CompFunc).name
+      typeof c === 'string' ? c : (c as CompFunc).name
     ) as Tag[];
-    return this.entities.filter((e) => e.is(tags)) as unknown as EntityQuery<T>[];
+    const result: EntityQuery<T>[] = [];
+    const queryArchetype = getArchetype(tags);
+    //TODO: return iterator instead of creating new list
+    this.archetypes.forEach((entities, code) => {
+      if ((queryArchetype & code) === queryArchetype) {
+        result.push(...entities);
+      }
+    });
+    return result;
   }
 }
 
