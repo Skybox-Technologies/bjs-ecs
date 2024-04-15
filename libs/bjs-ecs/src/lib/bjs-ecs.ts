@@ -115,7 +115,7 @@ export function addNodeEntity<T>(bjsNode: Node, comps: CompList<T>) {
 // --- BJS specific Queries ---
 type DefaultCompEntityQuery<T extends CompFunc, D extends CompFunc>
   = EntityQuery<
-  T extends { id: string } ? T | D : D
+  T extends { name: string } ? T | D : D
 >
 
 type NodeQueryDefaultComps = typeof node;
