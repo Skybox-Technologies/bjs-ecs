@@ -125,39 +125,7 @@ export function make<T>(comps: CompList<T> = []): Entity<T> {
   return ent as unknown as Entity<T>;
 }
 
-// --- world ---
-export const world: Entity[] = [];
-
-export type EntityEvents = {
-  add: Entity;
-  remove: Entity;
-};
-export const entityEvents = mitt<EntityEvents>();
-
-/**
- * Add an entity to the world.
- * @param comps A list of components to add to the entity
- */
-export function addEntity<T>(comps: CompList<T>): Entity<T> {
-  const entity = make(comps);
-  world.push(entity);
-  entityEvents.emit('add', entity);
-  return entity;
-}
-
-export function removeEntity(entity: Entity) {
-  const index = world.indexOf(entity);
-  if (index !== -1) {
-    const removed = world.splice(index, 1);
-    removed.forEach((e) => {
-      if (e.dispose) {
-        e.dispose();
-      }
-    });
-  }
-}
-
-// --- query ---
+// --- query  types ---
 export type CompFunc = (...args: any[]) => Comp;
 type CompReturnType<T extends CompFunc> = T extends (...args: any) => infer R ? R : any;
 
@@ -166,16 +134,66 @@ type ReturnTypeOFUnion<T extends CompFunc> = CompReturnType<T>;
 export type EntityQuery<T extends CompFunc> = EntityRaw &
   MergeComps<ReturnTypeOFUnion<T>>;
 
+// --- world ---
+export type EntityEvents = {
+  add: Entity;
+  remove: Entity;
+};
+
+export class World {
+  entities: Entity[] = [];
+  entityEvents = mitt<EntityEvents>();
+  clear() {
+    this.entities.forEach((e) => {
+      e.dispose();
+    });
+    this.entities = [];
+  }
+  addEntity<T>(comps: CompList<T>): Entity<T> {
+    const entity = make(comps);
+    this.entities.push(entity);
+    entityEvents.emit('add', entity);
+    return entity;
+  }
+  removeEntity(entity: Entity) {
+    const index = this.entities.indexOf(entity);
+    if (index !== -1) {
+      const removed = this.entities.splice(index, 1);
+      removed.forEach((e) => {
+        if (e.dispose) {
+          e.dispose();
+        }
+      });
+    }
+  }
+  queryEntities<T extends CompFunc>(comps: CompFuncList<T>): EntityQuery<T>[] {
+    const tags = comps.map((c) =>
+      typeof c === "string" ? c : (c as CompFunc).name
+    ) as Tag[];
+    return this.entities.filter((e) => e.is(tags)) as unknown as EntityQuery<T>[];
+  }
+}
+
+function createWorld(): World {
+  const newWorld = new World();
+  return newWorld;
+}
+
+export const defaultWorld = createWorld();
+export const entityEvents = defaultWorld.entityEvents;
+
+export const clearWorld = defaultWorld.clear.bind(defaultWorld);
+
+/**
+ * Add an entity to the world.
+ * @param comps A list of components to add to the entity
+ */
+export const addEntity = defaultWorld.addEntity.bind(defaultWorld);
+export const removeEntity = defaultWorld.removeEntity.bind(defaultWorld);
+
 /**
  * Generic query for entities.
  * @param comps list of components or tags the entity should have
  * @returns list of entities that match the query
  */
-export function queryEntities<T extends CompFunc>(
-  comps: CompFuncList<T>
-): EntityQuery<T>[] {
-  const tags = comps.map((c) =>
-    typeof c === "string" ? c : (c as CompFunc).name
-  ) as Tag[];
-  return world.filter((e) => e.is(tags)) as unknown as EntityQuery<T>[];
-}
+export const queryEntities = defaultWorld.queryEntities.bind(defaultWorld);

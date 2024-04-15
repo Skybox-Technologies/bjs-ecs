@@ -1,5 +1,5 @@
 import { Bench } from 'tinybench';
-import { addEntity, queryEntities, world } from './ecs';
+import { addEntity, clearWorld, queryEntities } from './ecs';
 
 // to run: npx tsx ./libs/bjs-ecs/src/lib/ecs.bench.ts
 
@@ -17,7 +17,7 @@ for (let i = 0; i < 20; ++i) {
 
 bench
   .add('Add entities', () => {
-    world.length = 0;
+    clearWorld();
     for (let i = 0; i < 1000; ++i) {
       addEntity(archetypes[i % archetypes.length]);
     }
