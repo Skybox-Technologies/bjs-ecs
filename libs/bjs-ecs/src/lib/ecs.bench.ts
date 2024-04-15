@@ -1,18 +1,29 @@
 import { Bench } from 'tinybench';
-import { addEntity, queryEntities } from './ecs';
+import { addEntity, queryEntities, world } from './ecs';
 
 // to run: npx tsx ./libs/bjs-ecs/src/lib/ecs.bench.ts
 
 const bench = new Bench({ time: 1000 });
 
+// create 20 different archetypes with 1-5 components each
+const archetypes: string[][] = [];
+for (let i = 0; i < 20; ++i) {
+  const components = [];
+  for (let j = 0; j < (i % 5) + 1; ++j) {
+    components.push(`copmp-${j}`);
+  }
+  archetypes.push(components);
+}
+
 bench
   .add('Add entities', () => {
-    [...Array(100).keys()].forEach((i) => {
-      addEntity([`copmp-${i % 10}`, `copmp-${(i / 10) | 0}`]);
-    });
+    world.length = 0;
+    for (let i = 0; i < 1000; ++i) {
+      addEntity(archetypes[i % archetypes.length]);
+    }
   })
   .add('Query entities', () => {
-      queryEntities([`copmp-0`, `copmp-5`]);
+    queryEntities([`copmp-0`, `copmp-1`]);
   });
 
 await bench.warmup(); // make results more reliable, ref: https://github.com/tinylibs/tinybench/pull/50
