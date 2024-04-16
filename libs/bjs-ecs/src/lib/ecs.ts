@@ -156,6 +156,27 @@ type ReturnTypeOFUnion<T extends CompFunc> = CompReturnType<T>;
 export type EntityQuery<T extends CompFunc> = EntityRaw &
   MergeComps<ReturnTypeOFUnion<T>>;
 
+type ExtractCompTypes<T extends Array<CompFunc>> = MergeComps<
+  UnionToIntersection<CompReturnType<T[number]>>
+>;
+
+// --- event emitter ---
+class TypedMitt<T extends EntityEvents> {
+  private emitter = mitt<T>();
+
+  on<K extends keyof T, C extends CompFunc[]>(
+    type: K,
+    comps: C,
+    handler: (event: ExtractCompTypes<C>) => void
+  ): void {
+    this.emitter.on(type, (event) => handler(event as any));
+  }
+
+  emit<K extends keyof T>(type: K, event: T[K]) {
+    this.emitter.emit(type, event);
+  }
+}
+
 // --- world ---
 export type EntityEvents = {
   add: Entity;
@@ -164,7 +185,7 @@ export type EntityEvents = {
 
 export class World {
   archetypes = new Map<Archetype, Entity[]>();
-  entityEvents = mitt<EntityEvents>();
+  entityEvents = new TypedMitt<EntityEvents>();
   clear() {
     this.archetypes.forEach((entities) => {
       entities.forEach((e) => {

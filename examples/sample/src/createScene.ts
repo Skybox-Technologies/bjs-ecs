@@ -50,11 +50,22 @@ export async function createScene(engine: Engine): Promise<Scene> {
   const light = new HemisphericLight('light', new Vector3(0, 1, 0), scene);
   light.intensity = 0.2;
 
-  // entity listeners
-  entityEvents.on('add', (entity) => {
-    console.log('add event:', entity);
+  function testComponent(isTest: boolean) {
+    return { id: 'isTest', isTest };
+  }
+
+  function anotherComponent(count: number) {
+    return { id: 'count', count };
+  }
+
+  entityEvents.on('add', [testComponent, anotherComponent], (entity) => {
+    console.log('add event:', entity.isTest);
   });
-  entityEvents.on('remove', (entity) => {
+
+  entityEvents.on('add', [], (entity) => {
+    console.log(entity);
+  });
+  entityEvents.on('remove', [], (entity) => {
     console.log('remove event:', entity);
   });
 
