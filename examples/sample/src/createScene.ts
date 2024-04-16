@@ -50,16 +50,12 @@ export async function createScene(engine: Engine): Promise<Scene> {
   const light = new HemisphericLight('light', new Vector3(0, 1, 0), scene);
   light.intensity = 0.2;
 
-  function testComponent(isTest: boolean) {
-    return { id: 'isTest', isTest };
+  function isGround(isGround: boolean) {
+    return { id: 'isGround', isGround };
   }
 
-  function anotherComponent(count: number) {
-    return { id: 'count', count };
-  }
-
-  entityEvents.on('add', [testComponent, anotherComponent], (entity) => {
-    console.log('add event:', entity.isTest);
+  entityEvents.on('add', ['ground', 'grey', isGround], (entity) => {
+    console.log('Ground is added: ', entity.isGround);
   });
 
   entityEvents.on('add', [], (entity) => {
@@ -102,7 +98,7 @@ export async function createScene(engine: Engine): Promise<Scene> {
       ground.getRawBoundingInfo().boundingBox.extendSize.scale(2),
       scene
     );
-  addNodeEntity(ground, ['ground', 'grey']);
+  addNodeEntity(ground, ['ground', 'grey', isGround(true)]);
 
   console.log('ecs query:');
   const entities = queryXforms(['grey']);
