@@ -51,13 +51,18 @@ describe('handle entities and queries', () => {
     expect(entities.length).toBe(9);
   });
 
-  it('can listen to components added', () => {
+  it('can listen to components added', (done) => {
     function isMyEntity(isMyEntity: boolean) {
       return { id: 'isMyEntity', isMyEntity };
     }
     const testQuery = ['myEntity', isMyEntity(true)];
     entityEvents.on('add', ['myEntity', isMyEntity], (entity) => {
-      expect(entity).toHaveProperty('isMyEntity');
+      try {
+        expect(entity).toHaveProperty('isMyEntity');
+        done();
+      } catch (e) {
+        done(e);
+      }
     });
 
     addEntity(testQuery);
