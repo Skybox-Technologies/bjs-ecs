@@ -169,13 +169,20 @@ class TypedMitt<T extends EntityEvents> {
   on<K extends keyof T, C extends Array<CompFunc | Tag>>(
     type: K,
     comps: C,
-    handler: (event: ExtractCompTypes<C>) => void
+    handler: (entity: ExtractCompTypes<C>) => void
   ): void {
-    this.emitter.on(type, (event) => handler(event as any)); // Use `any` as a safe cast
+    const tags = comps.map((c) =>
+      typeof c === 'string' ? c : (c as CompFunc).name
+    ) as Tag[];
+    const queryArchetype = getArchetype(tags);
+    this.emitter.on(type, (entity) => {
+      if (queryArchetype === ((entity as Entity).archetype & queryArchetype))
+        handler(entity as any);
+    });
   }
 
-  emit<K extends keyof T>(type: K, event: T[K]) {
-    this.emitter.emit(type, event);
+  emit<K extends keyof T>(type: K, entity: T[K]) {
+    this.emitter.emit(type, entity);
   }
 }
 
@@ -188,6 +195,7 @@ export type EntityEvents = {
 export class World {
   archetypes = new Map<Archetype, Entity[]>();
   entityEvents = new TypedMitt<EntityEvents>();
+
   clear() {
     this.archetypes.forEach((entities) => {
       entities.forEach((e) => {
