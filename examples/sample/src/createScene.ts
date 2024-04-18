@@ -15,6 +15,7 @@ import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
 import { Scene } from '@babylonjs/core/scene';
 import HavokPhysics from '@babylonjs/havok';
 import {
+  addEntity,
   addNodeEntity,
   entityEvents,
   queryEntities,
@@ -50,12 +51,12 @@ export async function createScene(engine: Engine): Promise<Scene> {
   const light = new HemisphericLight('light', new Vector3(0, 1, 0), scene);
   light.intensity = 0.2;
 
-  // entity listeners
-  entityEvents.on('add', (entity) => {
-    console.log('add event:', entity);
-  });
-  entityEvents.on('remove', (entity) => {
-    console.log('remove event:', entity);
+  function isGround(isGround: boolean) {
+    return { id: 'isGround', isGround };
+  }
+
+  entityEvents.on('add', ['ground', 'grey', isGround], (entity) => {
+    console.log('Ground is added: ', entity.isGround);
   });
 
   // entities
@@ -91,7 +92,7 @@ export async function createScene(engine: Engine): Promise<Scene> {
       ground.getRawBoundingInfo().boundingBox.extendSize.scale(2),
       scene
     );
-  addNodeEntity(ground, ['ground', 'grey']);
+  addNodeEntity(ground, ['ground', 'grey', isGround(true)]);
 
   console.log('ecs query:');
   const entities = queryXforms(['grey']);
