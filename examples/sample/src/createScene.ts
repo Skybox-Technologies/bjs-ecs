@@ -55,17 +55,6 @@ export async function createScene(engine: Engine): Promise<Scene> {
     return { id: 'isGround', isGround };
   }
 
-  function isMyEntity(isMyEntity: boolean) {
-    return { id: 'isMyEntity', isMyEntity };
-  }
-
-  const testQuery = ['myEntity', isMyEntity(true)];
-
-  entityEvents.on('add', ['myEntity', isMyEntity], (entity) => {
-    console.log('my entity added: ', { entity });
-  });
-  addEntity(testQuery);
-
   entityEvents.on('add', ['ground', 'grey', isGround], (entity) => {
     console.log('Ground is added: ', entity.isGround);
   });

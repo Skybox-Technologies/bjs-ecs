@@ -1,4 +1,4 @@
-import { addEntity, queryEntities, removeEntity } from './ecs';
+import { addEntity, entityEvents, queryEntities, removeEntity } from './ecs';
 
 function door(isLocked: boolean) {
   return { id: 'door', locked: isLocked };
@@ -49,5 +49,17 @@ describe('handle entities and queries', () => {
 
     entities = queryEntities(['enemy']);
     expect(entities.length).toBe(9);
+  });
+
+  it('can listen to components added', () => {
+    function isMyEntity(isMyEntity: boolean) {
+      return { id: 'isMyEntity', isMyEntity };
+    }
+    const testQuery = ['myEntity', isMyEntity(true)];
+    entityEvents.on('add', ['myEntity', isMyEntity], (entity) => {
+      expect(entity).toHaveProperty('isMyEntity');
+    });
+
+    addEntity(testQuery);
   });
 });
