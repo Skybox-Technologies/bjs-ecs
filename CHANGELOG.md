@@ -1,3 +1,15 @@
+## 0.3.0 (2024-04-18)
+
+
+### 🩹 Fixes
+
+- move GHA file to right folder ([e85cdaf](https://github.com/Skybox-Technologies/bjs-ecs/commit/e85cdaf))
+- update actions versions ([648d5d8](https://github.com/Skybox-Technologies/bjs-ecs/commit/648d5d8))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+
 ## 0.2.0 (2024-04-15)
 
 
