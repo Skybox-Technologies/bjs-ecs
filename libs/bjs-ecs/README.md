@@ -52,6 +52,18 @@ function door(isLocked: boolean) {
   return { id: 'door', locked: isLocked };
 }
 
+// Subscribe to events when entities are added to the world.
+entityEvents.on('add', [door], (entity) => {
+  // This callback is invoked whenever an entity, which includes the components specified in the second argument, is added to the world.
+  console.log('Entity added: ', entity.door);
+});
+
+// Subscribe to events when entities are removed from the world.
+entityEvents.on('remove', [door], (entity) => {
+  // This callback is invoked whenever an entity, which includes the components specified in the second argument, is removed from the world.
+  console.log('Entity removed: ', entity.door);
+});
+
 // add entity with components (and tag)
 // component properties propagate to entity with typing
 const redDoor = addEntity([door(true), color('#ff0000'), 'static']);
