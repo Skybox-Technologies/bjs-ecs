@@ -1,5 +1,5 @@
 import { NullEngine, MeshBuilder, Scene } from '@babylonjs/core';
-import { addNodeEntity, queryXforms } from './bjs-ecs.js';
+import { addNodeEntity, queryMeshes, queryXforms } from './bjs-ecs.js';
 import { removeEntity } from './ecs.js';
 
 const engine = new NullEngine();
@@ -42,5 +42,14 @@ describe('handle BJS entities', () => {
 
     const enemy2After = scene.getMeshByName('enemy2');
     expect(enemy2After).toBeDefined();
+  });
+
+  it('can recognize mesh on an entityNode with mesh added', () => {
+    const player = MeshBuilder.CreateSphere('player1', { diameter: 2 }, scene);
+    addNodeEntity(player, ['player']);
+
+    queryMeshes(['mesh']).forEach((p) => {
+      expect(p.mesh).toBeDefined;
+    });
   });
 });

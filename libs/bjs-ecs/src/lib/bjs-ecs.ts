@@ -1,4 +1,4 @@
-import { InspectableType } from '@babylonjs/core';
+import { InspectableType, Mesh } from '@babylonjs/core';
 import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
@@ -45,6 +45,7 @@ export const mesh = (mesh: AbstractMesh) => ({
   id: 'mesh',
   mesh,
 });
+type MeshQueryDefaultComps = typeof mesh | XformQueryDefaultComps;
 
 // PhysicsBody
 export const physicsBody = (physicsBody: PhysicsBody) => ({
@@ -70,6 +71,9 @@ declare module './ecs' {
     queryXforms<T extends CompFunc>(
       comps: CompFuncList<T>
     ): DefaultCompEntityQuery<T, XformQueryDefaultComps>[];
+    queryMeshes<T extends CompFunc>(
+      comps: CompFuncList<T>
+    ): DefaultCompEntityQuery<T, MeshQueryDefaultComps>[];
   }
 }
 
@@ -84,6 +88,11 @@ World.prototype.addNodeEntity = function <T extends { id: string }>(
 
     if (xformNode.physicsBody) {
       comps.push(physicsBody(xformNode.physicsBody) as unknown as T);
+    }
+
+    if (bjsNode instanceof Mesh) {
+      const meshNode = bjsNode as Mesh;
+      comps.push(mesh(meshNode) as unknown as T);
     }
   }
   comps.push(node(bjsNode) as unknown as T);
@@ -169,7 +178,7 @@ export const queryNodes = defaultWorld.queryNodes.bind(defaultWorld);
 World.prototype.queryXforms = function <T extends CompFunc>(
   comps: CompFuncList<T>
 ): DefaultCompEntityQuery<T, XformQueryDefaultComps>[] {
-  return this.queryEntities([xform, ...comps]) as DefaultCompEntityQuery<
+  return this.queryEntities([node, xform, ...comps]) as DefaultCompEntityQuery<
     T,
     XformQueryDefaultComps
   >[];
@@ -181,3 +190,21 @@ World.prototype.queryXforms = function <T extends CompFunc>(
  * @returns list of entities that match the query
  */
 export const queryXforms = defaultWorld.queryXforms.bind(defaultWorld);
+
+World.prototype.queryMeshes = function <T extends CompFunc>(
+  comps: CompFuncList<T>
+): DefaultCompEntityQuery<T, MeshQueryDefaultComps>[] {
+  return this.queryEntities([
+    node,
+    xform,
+    mesh,
+    ...comps,
+  ]) as DefaultCompEntityQuery<T, MeshQueryDefaultComps>[];
+};
+
+/**
+ * Query for Mesh entities, i.e. entities with Mesh, XformComp and NodeComp.
+ * @param comps list of additional components or tags the entity should have
+ * @returns list of entities that match the query
+ */
+export const queryMeshes = defaultWorld.queryMeshes.bind(defaultWorld);
