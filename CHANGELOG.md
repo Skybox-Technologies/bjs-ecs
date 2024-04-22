@@ -1,3 +1,18 @@
+## 0.3.1 (2024-04-22)
+
+
+### 🩹 Fixes
+
+- ignore tinybench for linting ([6952b62](https://github.com/Skybox-Technologies/bjs-ecs/commit/6952b62))
+- added mesh to addNodeEntity ([d68b128](https://github.com/Skybox-Technologies/bjs-ecs/commit/d68b128))
+- added new queryMeshes function ([b507239](https://github.com/Skybox-Technologies/bjs-ecs/commit/b507239))
+- fixed MeshQueryDefaultComps type ([50bd2bb](https://github.com/Skybox-Technologies/bjs-ecs/commit/50bd2bb))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+- Rasmus @rasmushassenkam
+
 ## 0.3.0 (2024-04-18)
 
 
