@@ -45,7 +45,7 @@ export const mesh = (mesh: AbstractMesh) => ({
   id: 'mesh',
   mesh,
 });
-type MeshQueryDefaultComps = typeof mesh & XformQueryDefaultComps;
+type MeshQueryDefaultComps = typeof mesh | XformQueryDefaultComps;
 
 // PhysicsBody
 export const physicsBody = (physicsBody: PhysicsBody) => ({

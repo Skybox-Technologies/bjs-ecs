@@ -49,7 +49,7 @@ describe('handle BJS entities', () => {
     addNodeEntity(player, ['player']);
 
     queryMeshes(['mesh']).forEach((p) => {
-      expect(p).toHaveProperty('mesh');
+      expect(p.mesh).toBeDefined;
     });
   });
 });
