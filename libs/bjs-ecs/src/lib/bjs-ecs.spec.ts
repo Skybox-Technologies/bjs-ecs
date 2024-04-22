@@ -1,5 +1,5 @@
 import { NullEngine, MeshBuilder, Scene } from '@babylonjs/core';
-import { addNodeEntity, queryXforms } from './bjs-ecs.js';
+import { addNodeEntity, queryMeshes, queryXforms } from './bjs-ecs.js';
 import { removeEntity } from './ecs.js';
 
 const engine = new NullEngine();
@@ -48,7 +48,7 @@ describe('handle BJS entities', () => {
     const player = MeshBuilder.CreateSphere('player1', { diameter: 2 }, scene);
     addNodeEntity(player, ['player']);
 
-    queryXforms(['player']).forEach((p) => {
+    queryMeshes(['mesh']).forEach((p) => {
       expect(p).toHaveProperty('mesh');
     });
   });
