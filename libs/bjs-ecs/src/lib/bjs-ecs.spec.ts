@@ -43,4 +43,13 @@ describe('handle BJS entities', () => {
     const enemy2After = scene.getMeshByName('enemy2');
     expect(enemy2After).toBeDefined();
   });
+
+  it('can recognize mesh on an entityNode with mesh added', () => {
+    const player = MeshBuilder.CreateSphere('player1', { diameter: 2 }, scene);
+    addNodeEntity(player, ['player']);
+
+    queryXforms(['player']).forEach((p) => {
+      expect(p).toHaveProperty('mesh');
+    });
+  });
 });

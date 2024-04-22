@@ -1,4 +1,4 @@
-import { InspectableType } from '@babylonjs/core';
+import { InspectableType, Mesh } from '@babylonjs/core';
 import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
@@ -38,7 +38,7 @@ export const xform = (xform: TransformNode) => ({
   id: 'xform',
   xform,
 });
-type XformQueryDefaultComps = typeof node | typeof xform;
+type XformQueryDefaultComps = typeof node | typeof xform | typeof mesh;
 
 // MeshComp
 export const mesh = (mesh: AbstractMesh) => ({
@@ -84,6 +84,11 @@ World.prototype.addNodeEntity = function <T extends { id: string }>(
 
     if (xformNode.physicsBody) {
       comps.push(physicsBody(xformNode.physicsBody) as unknown as T);
+    }
+
+    if (bjsNode instanceof Mesh) {
+      const meshNode = bjsNode as Mesh;
+      comps.push(mesh(meshNode) as unknown as T);
     }
   }
   comps.push(node(bjsNode) as unknown as T);
