@@ -1,3 +1,14 @@
+## 0.3.2 (2024-04-30)
+
+
+### 🚀 Features
+
+- add entity.comps with Map of components ([2002898](https://github.com/Skybox-Technologies/bjs-ecs/commit/2002898))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+
 ## 0.3.1 (2024-04-22)
 
 
