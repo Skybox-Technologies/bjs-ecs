@@ -27,9 +27,6 @@ export const node = (node: Node) => ({
     }
   },
   node,
-  get name() {
-    return node.name;
-  },
 });
 type NodeQueryDefaultComps = typeof node;
 

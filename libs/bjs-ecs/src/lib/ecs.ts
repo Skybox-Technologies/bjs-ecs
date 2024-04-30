@@ -42,6 +42,7 @@ export type MergeComps<T> = Omit<MergeObj<T>, keyof Comp>;
 export interface EntityRaw {
   id: number;
   archetype: bigint;
+  comps: Map<Tag, Comp>;
   comp: (id: Tag) => Comp | undefined;
   addComp: (comp: Comp | Tag) => void;
   is: (tag: Tag | Tag[]) => boolean;
@@ -55,16 +56,16 @@ export const uid = (() => {
 })();
 
 export function make<T extends { id: string }>(
-  comps: CompList<T> = []
+  components: CompList<T> = []
 ): Entity<T> {
-  const compStates = new Map<Tag, Comp>();
   const ent: EntityRaw = {
+    comps: new Map<Tag, Comp>(),
     id: uid(),
     archetype: getArchetype(
-      comps.map((c) => (typeof c === 'string' ? c : c.id))
+      components.map((c) => (typeof c === 'string' ? c : c.id))
     ),
     comp(id: Tag): Comp | undefined {
-      return compStates.get(id);
+      return this.comps.get(id);
     },
 
     // add a comp, or tag
@@ -81,7 +82,7 @@ export function make<T extends { id: string }>(
       }
 
       //TODO: see https://github.com/replit/kaboom/blob/master/src/kaboom.ts#L2868
-      compStates.set(comp.id, comp);
+      this.comps.set(comp.id, comp);
 
       for (const k in comp) {
         if (COMP_DESC.has(k)) {
@@ -131,14 +132,14 @@ export function make<T extends { id: string }>(
     },
     dispose() {
       entityEvents.emit('remove', this);
-      compStates.forEach((comp) => {
+      this.comps.forEach((comp) => {
         if (comp.dispose) {
           comp.dispose();
         }
       });
     },
   };
-  for (const comp of comps) {
+  for (const comp of components) {
     ent.addComp(comp as Comp | Tag);
   }
 
