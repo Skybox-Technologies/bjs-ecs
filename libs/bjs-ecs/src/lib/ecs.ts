@@ -147,7 +147,10 @@ export function make<T extends { id: string }>(
 }
 
 // --- query  types ---
-export type CompFunc = (...args: any[]) => Comp;
+export type CompFunc = {
+  id: string;
+  (...args: any[]): Comp;
+};
 type CompReturnType<T extends CompFunc> = T extends (...args: any) => infer R
   ? R
   : any;
@@ -173,7 +176,7 @@ class TypedMitt<T extends EntityEvents> {
     handler: (entity: ExtractCompTypes<C>) => void
   ): void {
     const tags = comps.map((c) =>
-      typeof c === 'string' ? c : (c as CompFunc).name
+      typeof c === 'string' ? c : (c as CompFunc).id
     ) as Tag[];
     const queryArchetype = getArchetype(tags);
     this.emitter.on(type, (entity) => {
@@ -232,7 +235,7 @@ export class World {
   }
   queryEntities<T extends CompFunc>(comps: CompFuncList<T>): EntityQuery<T>[] {
     const tags = comps.map((c) =>
-      typeof c === 'string' ? c : (c as CompFunc).name
+      typeof c === 'string' ? c : (c as CompFunc).id
     ) as Tag[];
     const result: EntityQuery<T>[] = [];
     const queryArchetype = getArchetype(tags);

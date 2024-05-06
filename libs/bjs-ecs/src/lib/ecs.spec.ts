@@ -3,10 +3,12 @@ import { addEntity, entityEvents, queryEntities, removeEntity } from './ecs';
 function door(isLocked: boolean) {
   return { id: 'door', locked: isLocked };
 }
+door.id = "door";
 
 function color(hex: string) {
   return { id: 'color', color: hex };
 }
+color.id = "color";
 
 describe('handle entities and queries', () => {
   it('can add entities with tags', () => {
@@ -55,6 +57,8 @@ describe('handle entities and queries', () => {
     function isMyEntity(isMyEntity: boolean) {
       return { id: 'isMyEntity', isMyEntity };
     }
+    isMyEntity.id = 'isMyEntity';
+    
     const testQuery = ['myEntity', isMyEntity(true)];
     entityEvents.on('add', ['myEntity', isMyEntity], (entity) => {
       try {

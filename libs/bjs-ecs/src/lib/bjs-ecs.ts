@@ -28,6 +28,7 @@ export const node = (node: Node) => ({
   },
   node,
 });
+node.id = 'node';
 type NodeQueryDefaultComps = typeof node;
 
 // Xform
@@ -35,6 +36,7 @@ export const xform = (xform: TransformNode) => ({
   id: 'xform',
   xform,
 });
+xform.id = 'xform';
 type XformQueryDefaultComps = typeof node | typeof xform;
 
 // MeshComp
@@ -42,6 +44,7 @@ export const mesh = (mesh: AbstractMesh) => ({
   id: 'mesh',
   mesh,
 });
+mesh.id = 'mesh';
 type MeshQueryDefaultComps = typeof mesh | XformQueryDefaultComps;
 
 // PhysicsBody
@@ -49,6 +52,7 @@ export const physicsBody = (physicsBody: PhysicsBody) => ({
   id: 'physicsBody',
   physicsBody,
 });
+physicsBody.id = 'physicsBody';
 
 // --- BJS specific Queries ---
 type DefaultCompEntityQuery<
