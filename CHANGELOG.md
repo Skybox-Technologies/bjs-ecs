@@ -1,3 +1,14 @@
+## 0.3.3 (2024-05-06)
+
+
+### 🩹 Fixes
+
+- queries broken in production builds ([15b653d](https://github.com/Skybox-Technologies/bjs-ecs/commit/15b653d))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+
 ## 0.3.2 (2024-04-30)
 
 
