@@ -11,7 +11,7 @@ you may want to look elsewhere.
 
 - ✅ (current) Focus on developer ergonomics, e.g. being TypeScript idiomatic
 - ✅ (current) Tight integration with Babylon.js
-- ⏭️ (next) Optimize query performance
+- ✅ (current) Optimize query performance
 - ❓ (not currently in scope) Optimized data storage for Entities/Components
 
 ## Sample
@@ -47,10 +47,13 @@ const player = addEntity(['actor', 'player']);
 function color(hex: string) {
   return { id: 'color', color: hex };
 }
+// you must add an extra id property to the funciton, matching the component id
+colro.id = 'color';
 
 function door(isLocked: boolean) {
   return { id: 'door', locked: isLocked };
 }
+door.id = 'door';
 
 // Subscribe to events when entities are added to the world.
 entityEvents.on('add', [door], (entity) => {

@@ -15,12 +15,9 @@ import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
 import { Scene } from '@babylonjs/core/scene';
 import HavokPhysics from '@babylonjs/havok';
 import {
-  addEntity,
   addNodeEntity,
   entityEvents,
-  queryEntities,
-  queryXforms,
-  removeEntity,
+  queryXforms
 } from '@skyboxgg/bjs-ecs';
 import { setupInspector, showInspector } from './inspector';
 
@@ -54,6 +51,7 @@ export async function createScene(engine: Engine): Promise<Scene> {
   function isGround(isGround: boolean) {
     return { id: 'isGround', isGround };
   }
+  isGround.id = 'isGround';
 
   entityEvents.on('add', ['ground', 'grey', isGround], (entity) => {
     console.log('Ground is added: ', entity.isGround);
@@ -98,7 +96,7 @@ export async function createScene(engine: Engine): Promise<Scene> {
   const entities = queryXforms(['grey']);
   console.log('entities:');
   entities.forEach((entity) => {
-    console.log(' name:', entity.name);
+    console.log(' name:', entity.node.name);
     console.log(' pos:', entity.xform.position.toString());
   });
 
@@ -113,7 +111,7 @@ export async function createScene(engine: Engine): Promise<Scene> {
   const entities2 = queryXforms(['grey']);
   console.log('entities2:');
   entities2.forEach((entity) => {
-    console.log(' name:', entity.name);
+    console.log(' name:', entity.node.name);
     console.log(' pos:', entity.xform.position.toString());
   });
 
