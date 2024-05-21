@@ -1,3 +1,14 @@
+## 0.3.4 (2024-05-21)
+
+
+### 🩹 Fixes
+
+- change imports to support treeshaking ([f078684](https://github.com/Skybox-Technologies/bjs-ecs/commit/f078684))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+
 ## 0.3.3 (2024-05-06)
 
 
