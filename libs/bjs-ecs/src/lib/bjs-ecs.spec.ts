@@ -1,6 +1,8 @@
-import { NullEngine, MeshBuilder, Scene } from '@babylonjs/core';
-import { addNodeEntity, queryMeshes, queryXforms } from './bjs-ecs.js';
-import { removeEntity } from './ecs.js';
+import { NullEngine } from '@babylonjs/core/Engines/nullEngine';
+import { addNodeEntity, queryMeshes, queryXforms } from './bjs-ecs';
+import { removeEntity } from './ecs';
+import { Scene } from '@babylonjs/core/scene';
+import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
 
 const engine = new NullEngine();
 const scene = new Scene(engine);

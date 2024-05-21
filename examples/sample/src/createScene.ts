@@ -1,17 +1,15 @@
-import {
-  PBRMaterial,
-  PhysicsShapeBox,
-  PhysicsShapeSphere,
-} from '@babylonjs/core';
 import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera';
 import { Engine } from '@babylonjs/core/Engines/engine';
+import '@babylonjs/core/Helpers/sceneHelpers';
 import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
+import { PBRMaterial } from '@babylonjs/core/Materials/PBR/pbrMaterial';
 import '@babylonjs/core/Materials/standardMaterial';
 import { Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
 import { PhysicsMotionType } from '@babylonjs/core/Physics/v2/IPhysicsEnginePlugin';
 import { HavokPlugin } from '@babylonjs/core/Physics/v2/Plugins/havokPlugin';
 import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
+import { PhysicsShapeBox, PhysicsShapeSphere } from '@babylonjs/core/Physics/v2/physicsShape';
 import { Scene } from '@babylonjs/core/scene';
 import HavokPhysics from '@babylonjs/havok';
 import {
