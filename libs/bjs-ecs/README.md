@@ -48,7 +48,7 @@ function color(hex: string) {
   return { id: 'color', color: hex };
 }
 // you must add an extra id property to the funciton, matching the component id
-colro.id = 'color';
+color.id = 'color';
 
 function door(isLocked: boolean) {
   return { id: 'door', locked: isLocked };

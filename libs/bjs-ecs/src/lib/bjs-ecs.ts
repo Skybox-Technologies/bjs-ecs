@@ -1,6 +1,7 @@
-import { InspectableType, Mesh } from '@babylonjs/core';
 import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
+import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
+import { InspectableType } from '@babylonjs/core/Misc/iInspectable';
 import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
 import '@babylonjs/core/Physics/v2/physicsEngineComponent';
 import { Node } from '@babylonjs/core/node';
