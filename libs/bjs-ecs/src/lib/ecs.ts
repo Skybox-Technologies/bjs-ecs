@@ -210,9 +210,9 @@ export class World {
   }
   addEntity<T extends { id: string }>(comps: CompList<T>): Entity<T> {
     const entity = make(comps);
-    const archType = this.archetypes.get(entity.archetype);
-    if (archType) {
-      archType.push(entity);
+    const archetype = this.archetypes.get(entity.archetype);
+    if (archetype) {
+      archetype.push(entity);
     } else {
       this.archetypes.set(entity.archetype, [entity]);
     }
@@ -237,15 +237,14 @@ export class World {
     const tags = comps.map((c) =>
       typeof c === 'string' ? c : (c as CompFunc).id
     ) as Tag[];
-    const result: EntityQuery<T>[] = [];
+    const results: EntityQuery<T>[][] = [];
     const queryArchetype = getArchetype(tags);
-    //TODO: return iterator instead of creating new list
-    this.archetypes.forEach((entities, code) => {
-      if ((queryArchetype & code) === queryArchetype) {
-        result.push(...entities);
+    for (const [archetype, entities] of this.archetypes) {
+      if ((queryArchetype & archetype) === queryArchetype) {
+      results.push(entities);
       }
-    });
-    return result;
+    }
+    return ([] as EntityQuery<T>[]).concat(...results);
   }
 }
 
