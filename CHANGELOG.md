@@ -1,3 +1,14 @@
+## 0.3.5 (2024-06-05)
+
+
+### 🚀 Features
+
+- imporve query perf and bencmarking ([539a87a](https://github.com/Skybox-Technologies/bjs-ecs/commit/539a87a))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+
 ## 0.3.4 (2024-05-21)
 
 
