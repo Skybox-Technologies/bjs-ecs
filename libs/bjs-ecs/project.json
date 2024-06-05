@@ -23,6 +23,12 @@
         "assets": ["libs/bjs-ecs/*.md", "libs/bjs-ecs/*.png"]
       }
     },
+    "benchmark": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["npx tsx ./libs/bjs-ecs/src/lib/ecs.bench.ts"]
+      }
+    },
     "nx-release-publish": {
       "options": {
         "packageRoot": "dist\\{projectRoot}"
