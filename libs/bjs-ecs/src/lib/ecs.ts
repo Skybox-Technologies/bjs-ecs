@@ -210,9 +210,9 @@ export class World {
   }
   addEntity<T extends { id: string }>(comps: CompList<T>): Entity<T> {
     const entity = make(comps);
-    const archType = this.archetypes.get(entity.archetype);
-    if (archType) {
-      archType.push(entity);
+    const archetype = this.archetypes.get(entity.archetype);
+    if (archetype) {
+      archetype.push(entity);
     } else {
       this.archetypes.set(entity.archetype, [entity]);
     }
