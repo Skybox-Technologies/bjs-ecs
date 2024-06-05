@@ -23,7 +23,15 @@ bench
     }
   })
   .add('Query entities', () => {
-    queryEntities([`copmp-0`, `copmp-1`]);
+    const entities = queryEntities([`copmp-0`, `copmp-1`]);
+    let count = 0;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const _ of entities) {
+      ++count;
+    }
+    if(count !== entities.length) {
+      throw new Error('count mismatch');
+    }
   });
 
 await bench.warmup(); // make results more reliable, ref: https://github.com/tinylibs/tinybench/pull/50
