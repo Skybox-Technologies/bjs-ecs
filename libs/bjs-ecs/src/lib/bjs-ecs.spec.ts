@@ -22,7 +22,7 @@ describe('handle BJS entities', () => {
   it('can query BJS entities by tags', () => {
     const players = queryXforms(['player']);
     expect(players.length).toBe(1);
-    expect(players[0].node.name).toBe('player1');
+    expect(players.next().value?.node.name).toBe('player1');
   });
 
   it('can remove entity when BJS Node is disposed', () => {
@@ -38,9 +38,9 @@ describe('handle BJS entities', () => {
     const enemy2 = scene.getMeshByName('enemy2');
     expect(enemy2).toBeDefined();
 
-    queryXforms(['enemy']).forEach((enemy) => {
+    for(const enemy of queryXforms(['enemy'])) {
       removeEntity(enemy);
-    });
+    }
 
     const enemy2After = scene.getMeshByName('enemy2');
     expect(enemy2After).toBeDefined();
@@ -50,8 +50,8 @@ describe('handle BJS entities', () => {
     const player = MeshBuilder.CreateSphere('player1', { diameter: 2 }, scene);
     addNodeEntity(player, ['player']);
 
-    queryMeshes(['mesh']).forEach((p) => {
+    for (const p of queryMeshes(['mesh'])) {
       expect(p.mesh).toBeDefined;
-    });
+    }
   });
 });

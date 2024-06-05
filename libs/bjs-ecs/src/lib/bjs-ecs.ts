@@ -9,7 +9,7 @@ import {
   CompFunc,
   CompFuncList,
   CompList,
-  EntityQuery,
+  QueryGenerator,
   World,
   addEntity,
   defaultWorld,
@@ -56,10 +56,10 @@ export const physicsBody = (physicsBody: PhysicsBody) => ({
 physicsBody.id = 'physicsBody';
 
 // --- BJS specific Queries ---
-type DefaultCompEntityQuery<
+type DefaultCompGenerator<
   T extends CompFunc,
   D extends CompFunc
-> = EntityQuery<T extends { name: string } ? T | D : D>;
+> = QueryGenerator<T extends { name: string } ? T | D : D>;
 
 declare module './ecs' {
   export interface World {
@@ -69,13 +69,13 @@ declare module './ecs' {
     ): void;
     queryNodes<T extends CompFunc>(
       comps: CompFuncList<T>
-    ): DefaultCompEntityQuery<T, NodeQueryDefaultComps>[];
+    ): DefaultCompGenerator<T, NodeQueryDefaultComps>;
     queryXforms<T extends CompFunc>(
       comps: CompFuncList<T>
-    ): DefaultCompEntityQuery<T, XformQueryDefaultComps>[];
+    ): DefaultCompGenerator<T, XformQueryDefaultComps>;
     queryMeshes<T extends CompFunc>(
       comps: CompFuncList<T>
-    ): DefaultCompEntityQuery<T, MeshQueryDefaultComps>[];
+    ): DefaultCompGenerator<T, MeshQueryDefaultComps>;
   }
 }
 
@@ -163,11 +163,11 @@ export const addNodeEntity = defaultWorld.addNodeEntity.bind(defaultWorld);
 // --- BJS specific Queries ---
 World.prototype.queryNodes = function <T extends CompFunc>(
   comps: CompFuncList<T>
-): DefaultCompEntityQuery<T, NodeQueryDefaultComps>[] {
-  return this.queryEntities([node, ...comps]) as DefaultCompEntityQuery<
+): DefaultCompGenerator<T, NodeQueryDefaultComps> {
+  return this.queryEntities([node, ...comps]) as DefaultCompGenerator<
     T,
     NodeQueryDefaultComps
-  >[];
+  >;
 };
 
 /**
@@ -179,11 +179,11 @@ export const queryNodes = defaultWorld.queryNodes.bind(defaultWorld);
 
 World.prototype.queryXforms = function <T extends CompFunc>(
   comps: CompFuncList<T>
-): DefaultCompEntityQuery<T, XformQueryDefaultComps>[] {
-  return this.queryEntities([node, xform, ...comps]) as DefaultCompEntityQuery<
+): DefaultCompGenerator<T, XformQueryDefaultComps> {
+  return this.queryEntities([node, xform, ...comps]) as DefaultCompGenerator<
     T,
     XformQueryDefaultComps
-  >[];
+  >;
 };
 
 /**
@@ -195,13 +195,13 @@ export const queryXforms = defaultWorld.queryXforms.bind(defaultWorld);
 
 World.prototype.queryMeshes = function <T extends CompFunc>(
   comps: CompFuncList<T>
-): DefaultCompEntityQuery<T, MeshQueryDefaultComps>[] {
+): DefaultCompGenerator<T, MeshQueryDefaultComps> {
   return this.queryEntities([
     node,
     xform,
     mesh,
     ...comps,
-  ]) as DefaultCompEntityQuery<T, MeshQueryDefaultComps>[];
+  ]) as DefaultCompGenerator<T, MeshQueryDefaultComps>;
 };
 
 /**

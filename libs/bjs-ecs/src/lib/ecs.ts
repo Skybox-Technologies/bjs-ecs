@@ -196,6 +196,12 @@ export type EntityEvents = {
   remove: Entity;
 };
 
+export type QueryGenerator<T extends CompFunc> = {
+  [Symbol.iterator]: () => Generator<EntityQuery<T>, void, undefined>;
+  length: number;
+  next: () => IteratorResult<EntityQuery<T>>;
+};
+
 export class World {
   archetypes = new Map<Archetype, Entity[]>();
   entityEvents = new TypedMitt<EntityEvents>();
@@ -222,30 +228,42 @@ export class World {
   removeEntity(entity: Entity) {
     const archetype = this.archetypes.get(entity.archetype);
     if (archetype) {
-      const index = archetype.indexOf(entity);
-      if (index !== -1) {
-        const removed = archetype.splice(index, 1);
-        removed.forEach((e) => {
-          if (e.dispose) {
-            e.dispose();
-          }
-        });
+      if (archetype) {
+        const index = archetype.findIndex((e) => e === entity);
+        if (index !== -1) {
+          archetype.splice(index, 1);
+          entity.dispose();
+        }
       }
     }
   }
-  queryEntities<T extends CompFunc>(comps: CompFuncList<T>): EntityQuery<T>[] {
+  queryEntities<T extends CompFunc>(comps: CompFuncList<T>): QueryGenerator<T> {
     const tags = comps.map((c) =>
       typeof c === 'string' ? c : (c as CompFunc).id
     ) as Tag[];
-    const result: EntityQuery<T>[] = [];
     const queryArchetype = getArchetype(tags);
-    //TODO: return iterator instead of creating new list
-    this.archetypes.forEach((entities, code) => {
+    let length = 0;
+    for (const [code, entities] of this.archetypes.entries()) {
       if ((queryArchetype & code) === queryArchetype) {
-        result.push(...entities);
+        length += entities.length;
       }
-    });
-    return result;
+    }
+
+    const generator = this._queryEntities<T>(queryArchetype);
+    return {
+      [Symbol.iterator]: () => generator,
+      length,
+      next: generator.next.bind(generator),
+    };
+  }
+  *_queryEntities<T extends CompFunc>(queryArchetype: bigint) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const self = this;
+    for (const [code, entities] of self.archetypes.entries()) {
+      if ((queryArchetype & code) === queryArchetype) {
+        yield* entities as EntityQuery<T>[];
+      }
+    }
   }
 }
 

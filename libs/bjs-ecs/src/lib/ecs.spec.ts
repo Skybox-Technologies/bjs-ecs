@@ -32,22 +32,26 @@ describe('handle entities and queries', () => {
     expect(redDoor.color).toBe('#ff0000');
   });
 
-  it('can query entities by tags', () => {
+  it('can query entities by tags', () => { 
     const entities = queryEntities(['actor']);
     expect(entities.length).toBe(11);
+    for(const entity of entities) {
+      expect(entity.is('actor')).toBe(true);
+    }
   });
 
   it('can query entities by component', () => {
     const entities = queryEntities([color]);
     expect(entities.length).toBe(1);
-    expect(entities[0].color).toBe('#ff0000');
+    expect(entities.next().value?.color).toBe('#ff0000');
   });
 
   it('can remove entities', () => {
     let entities = queryEntities(['enemy']);
     expect(entities.length).toBe(10);
 
-    removeEntity(entities[0]);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    removeEntity(entities.next().value!);
 
     entities = queryEntities(['enemy']);
     expect(entities.length).toBe(9);
