@@ -10,7 +10,8 @@ const scene = new Scene(engine);
 describe('handle BJS entities', () => {
   it('can add BJS entities with components', () => {
     const player = MeshBuilder.CreateSphere('player1', { diameter: 2 }, scene);
-    addNodeEntity(player, ['player']);
+    const playerEntity = addNodeEntity(player, ['player']);
+    playerEntity;
 
     const enemy1 = MeshBuilder.CreateBox('enemy1', { size: 2 }, scene);
     addNodeEntity(enemy1, ['enemy']);

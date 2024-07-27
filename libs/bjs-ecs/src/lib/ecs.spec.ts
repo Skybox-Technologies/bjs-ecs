@@ -1,14 +1,13 @@
-import { addEntity, entityEvents, queryEntities, removeEntity } from './ecs';
+import {
+  addEntity,
+  createComp,
+  entityEvents,
+  queryEntities,
+  removeEntity,
+} from './ecs';
 
-function door(isLocked: boolean) {
-  return { id: 'door', locked: isLocked };
-}
-door.id = "door";
-
-function color(hex: string) {
-  return { id: 'color', color: hex };
-}
-color.id = "color";
+const door = createComp('door', (locked: boolean) => ({ locked }));
+const color = createComp('color', (hex: string) => ({ hex }));
 
 describe('handle entities and queries', () => {
   it('can add entities with tags', () => {
@@ -28,8 +27,8 @@ describe('handle entities and queries', () => {
   it('can add entities with components', () => {
     const redDoor = addEntity([door(true), color('#ff0000')]);
     expect(redDoor).toBeDefined();
-    expect(redDoor.locked).toBe(true);
-    expect(redDoor.color).toBe('#ff0000');
+    expect(redDoor.color.hex).toBe('#ff0000');
+    expect(redDoor.door.locked).toBe(true);
   });
 
   it('can query entities by tags', () => {
@@ -40,7 +39,7 @@ describe('handle entities and queries', () => {
   it('can query entities by component', () => {
     const entities = queryEntities([color]);
     expect(entities.length).toBe(1);
-    expect(entities[0].color).toBe('#ff0000');
+    expect(entities[0].color.hex).toBe('#ff0000');
   });
 
   it('can remove entities', () => {
@@ -54,15 +53,15 @@ describe('handle entities and queries', () => {
   });
 
   it('can listen to components added', (done) => {
-    function isMyEntity(isMyEntity: boolean) {
-      return { id: 'isMyEntity', isMyEntity };
-    }
-    isMyEntity.id = 'isMyEntity';
-    
+    const isMyEntity = createComp('isMyEntity', (isMyEntity: boolean) => ({
+      isMyEntity,
+    }));
+
     const testQuery = ['myEntity', isMyEntity(true)];
     entityEvents.on('add', ['myEntity', isMyEntity], (entity) => {
       try {
         expect(entity).toHaveProperty('isMyEntity');
+        expect(entity.isMyEntity.isMyEntity).toBe(true);
         done();
       } catch (e) {
         done(e);
