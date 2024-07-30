@@ -47,7 +47,7 @@ export function createComp<T extends (...args: any) => any, I extends string>(
   f: T
 ) {
   const proxy = (...args: Parameters<T>) => {
-    const value = f.apply(null, args) as ReturnType<T>;
+    const value = f(...args) as ReturnType<T>;
     return { id, value };
   };
   proxy.id = id;
@@ -80,10 +80,8 @@ export function make<T extends Comp>(
 
       // tag
       if (typeof comp === 'string') {
-        return this.addComp({
-          id: comp,
-          value: true
-        });
+        this.comps.set(comp, { id: comp, value: true });
+        return;
       }
 
       this.comps.set(comp.id, comp);
@@ -129,7 +127,9 @@ export type CompFunc = {
   id: string;
   (...args: any[]): Comp;
 };
-export type CompFuncList<T> = Array<T | Tag>;
+// export type CompFuncList<T> = Array<T | Tag>;
+export type CompFuncList<T extends CompFunc | Tag> = Array<T>;
+
 
 export type QueryType<T extends Array<CompFunc | Tag>> = {
   [K in ReturnType<Exclude<T[number], string>>['id']]: Extract<
@@ -205,7 +205,7 @@ export class World {
       }
     }
   }
-  queryEntities<T extends CompFunc>(comps: CompFuncList<T>): QueryType<CompFuncList<T>>[] {
+  queryEntities<T extends CompFunc | Tag>(comps: CompFuncList<T>): QueryType<CompFuncList<T>>[] {
     const tags = comps.map((c) =>
       typeof c === 'string' ? c : (c as CompFunc).id
     ) as Tag[];

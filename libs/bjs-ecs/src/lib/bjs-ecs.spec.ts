@@ -10,20 +10,22 @@ const scene = new Scene(engine);
 describe('handle BJS entities', () => {
   it('can add BJS entities with components', () => {
     const player = MeshBuilder.CreateSphere('player1', { diameter: 2 }, scene);
-    const playerEntity = addNodeEntity(player, ['player']);
-    playerEntity;
+    player.position.x = 1;
+    expect(addNodeEntity(player, ['player']).node.name).toBe('player1');
 
     const enemy1 = MeshBuilder.CreateBox('enemy1', { size: 2 }, scene);
-    addNodeEntity(enemy1, ['enemy']);
+    expect(addNodeEntity(enemy1, ['enemy']).node.name).toBe('enemy1');
 
     const enemy2 = MeshBuilder.CreateBox('enemy2', { size: 2 }, scene);
-    addNodeEntity(enemy2, ['enemy']);
+    expect(addNodeEntity(enemy2, ['enemy']).node.name).toBe('enemy2');
   });
 
   it('can query BJS entities by tags', () => {
     const players = queryXforms(['player']);
     expect(players.length).toBe(1);
-    expect(players[0].node.name).toBe('player1');
+    const player = players[0];
+    expect(player.node.name).toBe('player1');
+    expect(player.xform.position.x).toBe(1);
   });
 
   it('can remove entity when BJS Node is disposed', () => {

@@ -9,16 +9,15 @@ import {
   Comp,
   CompFunc,
   CompFuncList,
-  CompList,
   CompsListType,
-  Entity,
   EntityRaw,
   QueryType,
+  Tag,
   World,
   addEntity,
   createComp,
   defaultWorld,
-  removeEntity,
+  removeEntity
 } from './ecs';
 
 // --- BJS Components ---
@@ -39,56 +38,48 @@ type NodeComp = ReturnType<typeof node>;
 type NodeQueryDefaultComps = typeof node;
 
 // Xform
-export const xform = createComp('xform', (xform: TransformNode) => ({
-  xform,
-}));
-type XformQueryDefaultComps = typeof node | typeof xform;
+export const xform = createComp('xform', (xform: TransformNode) => xform);
+type XformQueryDefaultComps = typeof xform | NodeQueryDefaultComps;
 
 // MeshComp
-export const mesh = createComp("mesh", (mesh: AbstractMesh) => ({
+export const mesh = createComp('mesh', (mesh: AbstractMesh) => ({
   mesh,
 }));
 type MeshQueryDefaultComps = typeof mesh | XformQueryDefaultComps;
 
 // PhysicsBody
-export const physicsBody = createComp("physicsBody", (physicsBody: PhysicsBody) => ({
-  physicsBody,
-}));
+export const physicsBody = createComp(
+  'physicsBody',
+  (physicsBody: PhysicsBody) => ({
+    physicsBody,
+  })
+);
 
 // --- BJS specific Queries ---
-type DefaultCompEntityQuery<
-  T extends CompFunc,
-  D extends CompFunc
-> = QueryType<CompFuncList<T extends { id: string } ? T | D : D>>;
+type DefaultCompEntityQuery<T extends CompFunc | Tag, D extends CompFunc> = QueryType<
+  CompFuncList<T extends { id: string } ? T | D : D>
+>;
 
 declare module './ecs' {
   export interface World {
-    addNodeEntity<T extends Array<Comp|string>>(
+    addNodeEntity<T extends Array<Comp | string>>(
       bjsNode: Node,
       comps: T
     ): EntityRaw & CompsListType<T | NodeComp[]>;
 
-    queryNodes<T extends CompFunc>(
+    queryNodes<T extends CompFunc | Tag>(
       comps: CompFuncList<T>
     ): DefaultCompEntityQuery<T, NodeQueryDefaultComps>[];
-    queryXforms<T extends CompFunc>(
+    queryXforms<T extends CompFunc | Tag>(
       comps: CompFuncList<T>
     ): DefaultCompEntityQuery<T, XformQueryDefaultComps>[];
-    queryMeshes<T extends CompFunc>(
+    queryMeshes<T extends CompFunc | Tag>(
       comps: CompFuncList<T>
     ): DefaultCompEntityQuery<T, MeshQueryDefaultComps>[];
   }
 }
 
-const door = createComp("door", () => ({locked: true}))
-type Foo<T extends Array<Comp|string>> = CompsListType<T | NodeComp[]>
-const foos = ["foo", door()];
-type Foos = typeof foos
-let foo: Foo<Foos>
-foo!
-
-
-World.prototype.addNodeEntity = function <T extends Array<Comp|string>>(
+World.prototype.addNodeEntity = function <T extends Array<Comp | string>>(
   bjsNode: Node,
   comps: T
 ): EntityRaw & CompsListType<T | NodeComp[]> {
@@ -171,7 +162,7 @@ World.prototype.addNodeEntity = function <T extends Array<Comp|string>>(
 export const addNodeEntity = defaultWorld.addNodeEntity.bind(defaultWorld);
 
 // --- BJS specific Queries ---
-World.prototype.queryNodes = function <T extends CompFunc>(
+World.prototype.queryNodes = function <T extends CompFunc | Tag>(
   comps: CompFuncList<T>
 ): DefaultCompEntityQuery<T, NodeQueryDefaultComps>[] {
   return this.queryEntities([node, ...comps]) as DefaultCompEntityQuery<
@@ -187,7 +178,7 @@ World.prototype.queryNodes = function <T extends CompFunc>(
  */
 export const queryNodes = defaultWorld.queryNodes.bind(defaultWorld);
 
-World.prototype.queryXforms = function <T extends CompFunc>(
+World.prototype.queryXforms = function <T extends CompFunc | Tag>(
   comps: CompFuncList<T>
 ): DefaultCompEntityQuery<T, XformQueryDefaultComps>[] {
   return this.queryEntities([node, xform, ...comps]) as DefaultCompEntityQuery<
@@ -203,7 +194,7 @@ World.prototype.queryXforms = function <T extends CompFunc>(
  */
 export const queryXforms = defaultWorld.queryXforms.bind(defaultWorld);
 
-World.prototype.queryMeshes = function <T extends CompFunc>(
+World.prototype.queryMeshes = function <T extends CompFunc | Tag>(
   comps: CompFuncList<T>
 ): DefaultCompEntityQuery<T, MeshQueryDefaultComps>[] {
   return this.queryEntities([
