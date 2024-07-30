@@ -27,8 +27,8 @@ function getArchetype(comps: string[]): Archetype {
 export interface EntityRaw {
   id: number;
   archetype: bigint;
-  comps: Map<Tag, Comp>;
-  comp: (id: Tag) => Comp | undefined;
+  comps: Record<Tag, Comp | true>;
+  comp: (id: Tag) => Comp | true | undefined;
   addComp: (comp: Comp | Tag) => void;
   is: (tag: Tag | Tag[]) => boolean;
   dispose: () => void;
@@ -63,13 +63,13 @@ export function make<T extends Comp>(
   components: CompList<T> = []
 ): Entity<CompList<T>> {
   const ent: EntityRaw = {
-    comps: new Map<Tag, Comp>(),
+    comps: {},
     id: uid(),
     archetype: getArchetype(
       components.map((c) => (typeof c === 'string' ? c : c.id))
     ),
-    comp(id: Tag): Comp | undefined {
-      return this.comps.get(id);
+    comp(id: Tag): Comp | true | undefined {
+      return this.comps[id];
     },
 
     // add a comp, or tag
@@ -80,11 +80,11 @@ export function make<T extends Comp>(
 
       // tag
       if (typeof comp === 'string') {
-        this.comps.set(comp, { id: comp, value: true });
+        this.comps[comp] = true;
         return;
       }
 
-      this.comps.set(comp.id, comp);
+      this.comps[comp.id] = comp;
       // add comp name prop
       if ((this as any)[comp.id] === undefined) {
         Object.defineProperty(this, comp.id, {
@@ -108,13 +108,14 @@ export function make<T extends Comp>(
     },
     dispose() {
       entityEvents.emit('remove', this);
-      this.comps.forEach((comp) => {
-        if (comp.dispose) {
+      Object.values(this.comps).forEach((comp) => {
+        if (typeof comp !== "boolean"  && comp.dispose) {
           comp.dispose();
         }
       });
     },
   };
+
   for (const comp of components) {
     ent.addComp(comp);
   }
