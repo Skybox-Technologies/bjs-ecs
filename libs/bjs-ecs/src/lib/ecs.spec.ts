@@ -1,13 +1,13 @@
 import {
   addEntity,
-  createComp,
+  createComponent,
   entityEvents,
   queryEntities,
   removeEntity,
 } from './ecs';
 
-const door = createComp('door', (locked: boolean) => ({ locked }));
-const color = createComp('color', (hex: string) => ({ hex }));
+const door = createComponent('door', (locked: boolean) => ({ locked }));
+const color = createComponent('color', (hex: string) => ({ hex }));
 
 describe('handle entities and queries', () => {
   it('can add entities with tags', () => {
@@ -53,7 +53,7 @@ describe('handle entities and queries', () => {
   });
 
   it('can listen to components added', (done) => {
-    const isMyEntity = createComp('isMyEntity', (isMyEntity: boolean) => ({
+    const isMyEntity = createComponent('isMyEntity', (isMyEntity: boolean) => ({
       isMyEntity,
     }));
 
