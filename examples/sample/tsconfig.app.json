@@ -1,9 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "composite": true,
+    "noEmit": false,
+    "declaration": true,
     "outDir": "../../dist/out-tsc",
     "types": ["node"]
   },
-  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"],
-  "include": ["src/**/*.ts"]
+  "exclude": ["src/**/*.spec.ts"],
+  "include": ["src/**/*.ts", "../../libs/bjs-ecs/src/**/*.ts"]
 }
