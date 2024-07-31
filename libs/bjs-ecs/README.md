@@ -38,22 +38,14 @@ npm install @skyboxgg/bjs-ecs
 ### Core ECS:
 
 ```ts
-import { addEntity, queryEntities, removeEntity } from '@skyboxgg/bjs-ecs';
+import { addEntity, createComponent, queryEntities, removeEntity } from '@skyboxgg/bjs-ecs';
 
 // add entity with tags
 const player = addEntity(['actor', 'player']);
 
 // define components
-function color(hex: string) {
-  return { id: 'color', color: hex };
-}
-// you must add an extra id property to the funciton, matching the component id
-color.id = 'color';
-
-function door(isLocked: boolean) {
-  return { id: 'door', locked: isLocked };
-}
-door.id = 'door';
+const color = createComponent('color', (hex: string) => hex);
+const door = createComponent('door', (isLocked: boolean) => ({isLocked}));
 
 // Subscribe to events when entities are added to the world.
 entityEvents.on('add', [door], (entity) => {
@@ -79,20 +71,20 @@ console.log('greenDoor lock status:', greenDoor.locked);
 
 // query entities by component
 // result is typed
-const doors = queryEntities([door, color]);
-doors.forEach((door) => {
-  console.log('door color:', door.color);
-  console.log('door lock status:', door.locked);
-});
+const entities = queryEntities([door, color]);
+for (const entity of entities) {
+  console.log('entity color:', entity.color);
+  console.log('entity door lock status:', entity.door.locked);
+}
 
 // remove entity from world
-removeEntity(doors[0]);
+removeEntity(entities[0]);
 ```
 
 ### With Babylon.js
 
 Babylon Nodes can be added as entities, and subtypes (TransformNode, Mesh) as well as PhysicsBody
-are detected as additional components.
+are automatically detected as additional components.
 
 Nodes are automatically disposed from the Babylon scenegraph when removed from the ECS world and vice versa.
 
@@ -118,9 +110,9 @@ function setupScene(scene: Scene) {
   addNodeEntity(ground, ['ground']);
 
   // query transform entities (with typing)
-  queryXforms(['player']).forEach((player) => {
+  for(const player of queryXforms(['player'])) {
     player.xform.position.y += 2;
-  });
+  }
 }
 ```
 

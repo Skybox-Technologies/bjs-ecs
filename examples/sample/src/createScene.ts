@@ -14,9 +14,12 @@ import { Scene } from '@babylonjs/core/scene';
 import HavokPhysics from '@babylonjs/havok';
 import {
   addNodeEntity,
+  createComponent,
   entityEvents,
-  queryXforms
-} from '@skyboxgg/bjs-ecs';
+  queryEntities,
+  queryXforms,
+  removeEntity
+} from '@skyboxgg/bjs-ecs'; 
 import { setupInspector, showInspector } from './inspector';
 
 export async function createScene(engine: Engine): Promise<Scene> {
@@ -46,10 +49,7 @@ export async function createScene(engine: Engine): Promise<Scene> {
   const light = new HemisphericLight('light', new Vector3(0, 1, 0), scene);
   light.intensity = 0.2;
 
-  function isGround(isGround: boolean) {
-    return { id: 'isGround', isGround };
-  }
-  isGround.id = 'isGround';
+  const isGround = createComponent('isGround', (isGround: boolean) => isGround);
 
   entityEvents.on('add', ['ground', 'grey', isGround], (entity) => {
     console.log('Ground is added: ', entity.isGround);
@@ -102,16 +102,16 @@ export async function createScene(engine: Engine): Promise<Scene> {
   // ground.dispose();
 
   // remove from world
-  // queryEntities(['ground']).forEach((entity) => {
-  //   removeEntity(entity);
-  // });
+  for(const entity of queryEntities(['ground'])) {
+    removeEntity(entity);
+  }
 
   const entities2 = queryXforms(['grey']);
   console.log('entities2:');
-  entities2.forEach((entity) => {
+  for(const entity of entities2) {
     console.log(' name:', entity.node.name);
     console.log(' pos:', entity.xform.position.toString());
-  });
+  }
 
   return scene;
 }

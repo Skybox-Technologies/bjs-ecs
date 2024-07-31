@@ -4,9 +4,10 @@ import mitt from 'mitt';
 export type Tag = string;
 export interface Comp {
   id: Tag;
+  value: any;
   dispose?: () => void;
 }
-export type CompList<T> = Array<T | Tag>;
+export type CompList<T extends Comp> = Array<T | Tag>;
 
 type Archetype = bigint;
 
@@ -23,49 +24,52 @@ function getArchetype(comps: string[]): Archetype {
   return comps.reduce((acc, comp) => acc | getCompCode(comp), 0n);
 }
 
-// component properties that should NOT propagate to entity
-const COMP_DESC = new Set(['id', 'dispose']);
-
-//TODO: understand this
-type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
-  k: infer I
-) => void
-  ? I
-  : never;
-type Defined<T> = T extends any
-  ? Pick<T, { [K in keyof T]-?: T[K] extends undefined ? never : K }[keyof T]>
-  : never;
-type Expand<T> = T extends infer U ? { [K in keyof U]: U[K] } : never;
-export type MergeObj<T> = Expand<UnionToIntersection<Defined<T>>>;
-export type MergeComps<T> = Omit<MergeObj<T>, keyof Comp>;
-
 export interface EntityRaw {
   id: number;
   archetype: bigint;
-  comps: Map<Tag, Comp>;
-  comp: (id: Tag) => Comp | undefined;
+  comps: Record<Tag, Comp | true>;
+  comp: (id: Tag) => Comp | true | undefined;
   addComp: (comp: Comp | Tag) => void;
   is: (tag: Tag | Tag[]) => boolean;
   dispose: () => void;
 }
-export type Entity<T = any> = EntityRaw & MergeComps<T>;
+
+export type CompsListType<T extends Array<Comp | Tag>> = {
+  [K in Exclude<T[number], string>['id']]: Extract<
+    T[number],
+    { id: K }
+  >['value'];
+};
+export type Entity<T extends Array<Comp | Tag>> = EntityRaw & CompsListType<T>
+
+export function createComponent<T extends (...args: any) => any, I extends string>(
+  id: I,
+  f: T
+) {
+  const proxy = (...args: Parameters<T>) => {
+    const value = f(...args) as ReturnType<T>;
+    return { id, value };
+  };
+  proxy.id = id;
+  return proxy;
+}
 
 export const uid = (() => {
   let id = 0;
   return () => id++;
 })();
 
-export function make<T extends { id: string }>(
+export function make<T extends Comp>(
   components: CompList<T> = []
-): Entity<T> {
+): Entity<CompList<T>> {
   const ent: EntityRaw = {
-    comps: new Map<Tag, Comp>(),
+    comps: {},
     id: uid(),
     archetype: getArchetype(
       components.map((c) => (typeof c === 'string' ? c : c.id))
     ),
-    comp(id: Tag): Comp | undefined {
-      return this.comps.get(id);
+    comp(id: Tag): Comp | true | undefined {
+      return this.comps[id];
     },
 
     // add a comp, or tag
@@ -76,48 +80,20 @@ export function make<T extends { id: string }>(
 
       // tag
       if (typeof comp === 'string') {
-        return this.addComp({
-          id: comp,
-        });
+        this.comps[comp] = true;
+        return;
       }
 
-      //TODO: see https://github.com/replit/kaboom/blob/master/src/kaboom.ts#L2868
-      this.comps.set(comp.id, comp);
-
-      for (const k in comp) {
-        if (COMP_DESC.has(k)) {
-          continue;
-        }
-        const prop = Object.getOwnPropertyDescriptor(comp, k);
-
-        if (prop) {
-          if (typeof prop.value === 'function') {
-            (comp as any)[k] = (comp as any)[k].bind(this);
-          }
-
-          if (prop.set) {
-            Object.defineProperty(comp, k, {
-              set: prop.set.bind(this),
-            });
-          }
-
-          if (prop.get) {
-            Object.defineProperty(comp, k, {
-              get: prop.get.bind(this),
-            });
-          }
-        }
-        if ((this as any)[k] === undefined) {
-          // assign comp fields to entity
-          Object.defineProperty(this, k, {
-            get: () => (comp as any)[k],
-            set: (val) => ((comp as any)[k] = val),
-            configurable: true,
-            enumerable: true,
-          });
-        } else {
-          throw new Error(`Duplicate component property: "${k}"`);
-        }
+      this.comps[comp.id] = comp;
+      // add comp name prop
+      if ((this as any)[comp.id] === undefined) {
+        Object.defineProperty(this, comp.id, {
+          value: comp.value,
+          configurable: true,
+          enumerable: true,
+        })
+      } else {
+        throw new Error(`Duplicate component: "${comp.id}"`);
       }
     },
     is(tag: Tag | Tag[]): boolean {
@@ -132,18 +108,19 @@ export function make<T extends { id: string }>(
     },
     dispose() {
       entityEvents.emit('remove', this);
-      this.comps.forEach((comp) => {
-        if (comp.dispose) {
+      Object.values(this.comps).forEach((comp) => {
+        if (typeof comp !== "boolean"  && comp.dispose) {
           comp.dispose();
         }
       });
     },
   };
+
   for (const comp of components) {
-    ent.addComp(comp as Comp | Tag);
+    ent.addComp(comp);
   }
 
-  return ent as unknown as Entity<T>;
+  return ent as unknown as Entity<CompList<T>>;
 }
 
 // --- query  types ---
@@ -151,20 +128,16 @@ export type CompFunc = {
   id: string;
   (...args: any[]): Comp;
 };
-type CompReturnType<T extends CompFunc> = T extends (...args: any) => infer R
-  ? R
-  : any;
+// export type CompFuncList<T> = Array<T | Tag>;
+export type CompFuncList<T extends CompFunc | Tag> = Array<T>;
 
-export type CompFuncList<T> = Array<T | Tag>;
-type ReturnTypeOFUnion<T extends CompFunc> = CompReturnType<T>;
-export type EntityQuery<T extends CompFunc> = EntityRaw &
-  MergeComps<ReturnTypeOFUnion<T>>;
 
-type FilterCompFuncs<T> = T extends CompFunc ? T : never;
-
-type ExtractCompTypes<T extends Array<CompFunc | Tag>> = MergeComps<
-  UnionToIntersection<ReturnType<FilterCompFuncs<T[number]>>>
->;
+export type QueryType<T extends Array<CompFunc | Tag>> = {
+  [K in ReturnType<Exclude<T[number], string>>['id']]: Extract<
+    ReturnType<Exclude<T[number], string>>,
+    { id: K }
+  >['value'];
+} & EntityRaw;
 
 // --- event emitter ---
 class TypedMitt<T extends EntityEvents> {
@@ -173,14 +146,14 @@ class TypedMitt<T extends EntityEvents> {
   on<K extends keyof T, C extends Array<CompFunc | Tag>>(
     type: K,
     comps: C,
-    handler: (entity: ExtractCompTypes<C>) => void
+    handler: (entity: QueryType<C>) => void
   ): void {
     const tags = comps.map((c) =>
       typeof c === 'string' ? c : (c as CompFunc).id
     ) as Tag[];
     const queryArchetype = getArchetype(tags);
     this.emitter.on(type, (entity) => {
-      if (queryArchetype === ((entity as Entity).archetype & queryArchetype))
+      if (queryArchetype === ((entity as EntityRaw).archetype & queryArchetype))
         handler(entity as any);
     });
   }
@@ -192,12 +165,12 @@ class TypedMitt<T extends EntityEvents> {
 
 // --- world ---
 export type EntityEvents = {
-  add: Entity;
-  remove: Entity;
+  add: EntityRaw;
+  remove: EntityRaw;
 };
 
 export class World {
-  archetypes = new Map<Archetype, Entity[]>();
+  archetypes = new Map<Archetype, EntityRaw[]>();
   entityEvents = new TypedMitt<EntityEvents>();
 
   clear() {
@@ -208,7 +181,7 @@ export class World {
     });
     this.archetypes.clear();
   }
-  addEntity<T extends { id: string }>(comps: CompList<T>): Entity<T> {
+  addEntity<T extends Comp>(comps: CompList<T>): Entity<CompList<T>> {
     const entity = make(comps);
     const archetype = this.archetypes.get(entity.archetype);
     if (archetype) {
@@ -219,7 +192,7 @@ export class World {
     entityEvents.emit('add', entity);
     return entity;
   }
-  removeEntity(entity: Entity) {
+  removeEntity(entity: EntityRaw) {
     const archetype = this.archetypes.get(entity.archetype);
     if (archetype) {
       const index = archetype.indexOf(entity);
@@ -233,18 +206,18 @@ export class World {
       }
     }
   }
-  queryEntities<T extends CompFunc>(comps: CompFuncList<T>): EntityQuery<T>[] {
+  queryEntities<T extends CompFunc | Tag>(comps: CompFuncList<T>): QueryType<CompFuncList<T>>[] {
     const tags = comps.map((c) =>
       typeof c === 'string' ? c : (c as CompFunc).id
     ) as Tag[];
-    const results: EntityQuery<T>[][] = [];
+    const results: QueryType<CompFuncList<T>>[][] = [];
     const queryArchetype = getArchetype(tags);
     for (const [archetype, entities] of this.archetypes) {
       if ((queryArchetype & archetype) === queryArchetype) {
-      results.push(entities);
+      results.push(entities as QueryType<CompFuncList<T>>[]);
       }
     }
-    return ([] as EntityQuery<T>[]).concat(...results);
+    return ([] as QueryType<CompFuncList<T>>[]).concat(...results);
   }
 }
 

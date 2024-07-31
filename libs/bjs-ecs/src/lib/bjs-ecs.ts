@@ -6,98 +6,98 @@ import { PhysicsBody } from '@babylonjs/core/Physics/v2/physicsBody';
 import '@babylonjs/core/Physics/v2/physicsEngineComponent';
 import { Node } from '@babylonjs/core/node';
 import {
+  Comp,
   CompFunc,
   CompFuncList,
-  CompList,
-  EntityQuery,
+  CompsListType,
+  EntityRaw,
+  QueryType,
+  Tag,
   World,
   addEntity,
+  createComponent,
   defaultWorld,
-  removeEntity,
+  removeEntity
 } from './ecs';
 
 // --- BJS Components ---
 
 // Node
 export const node = (node: Node) => ({
-  id: 'node',
+  id: 'node' as const,
   dispose: () => {
     if (node.metadata.entity) {
       node.metadata.entity = undefined;
       node.dispose();
     }
   },
-  node,
+  value: node,
 });
-node.id = 'node';
+node.id = 'node' as const;
+type NodeComp = ReturnType<typeof node>;
 type NodeQueryDefaultComps = typeof node;
 
 // Xform
-export const xform = (xform: TransformNode) => ({
-  id: 'xform',
-  xform,
-});
-xform.id = 'xform';
-type XformQueryDefaultComps = typeof node | typeof xform;
+export const xform = createComponent('xform', (xform: TransformNode) => xform);
+type XformQueryDefaultComps = typeof xform | NodeQueryDefaultComps;
 
 // MeshComp
-export const mesh = (mesh: AbstractMesh) => ({
-  id: 'mesh',
+export const mesh = createComponent('mesh', (mesh: AbstractMesh) => ({
   mesh,
-});
-mesh.id = 'mesh';
+}));
 type MeshQueryDefaultComps = typeof mesh | XformQueryDefaultComps;
 
 // PhysicsBody
-export const physicsBody = (physicsBody: PhysicsBody) => ({
-  id: 'physicsBody',
-  physicsBody,
-});
-physicsBody.id = 'physicsBody';
+export const physicsBody = createComponent(
+  'physicsBody',
+  (physicsBody: PhysicsBody) => ({
+    physicsBody,
+  })
+);
 
 // --- BJS specific Queries ---
-type DefaultCompEntityQuery<
-  T extends CompFunc,
-  D extends CompFunc
-> = EntityQuery<T extends { name: string } ? T | D : D>;
+type DefaultCompEntityQuery<T extends CompFunc | Tag, D extends CompFunc> = QueryType<
+  CompFuncList<T extends { id: string } ? T | D : D>
+>;
 
 declare module './ecs' {
   export interface World {
-    addNodeEntity<T extends { id: string }>(
+    addNodeEntity<T extends Array<Comp | string>>(
       bjsNode: Node,
-      comps: CompList<T>
-    ): void;
-    queryNodes<T extends CompFunc>(
+      comps: T
+    ): EntityRaw & CompsListType<T | NodeComp[]>;
+
+    queryNodes<T extends CompFunc | Tag>(
       comps: CompFuncList<T>
     ): DefaultCompEntityQuery<T, NodeQueryDefaultComps>[];
-    queryXforms<T extends CompFunc>(
+    queryXforms<T extends CompFunc | Tag>(
       comps: CompFuncList<T>
     ): DefaultCompEntityQuery<T, XformQueryDefaultComps>[];
-    queryMeshes<T extends CompFunc>(
+    queryMeshes<T extends CompFunc | Tag>(
       comps: CompFuncList<T>
     ): DefaultCompEntityQuery<T, MeshQueryDefaultComps>[];
   }
 }
 
-World.prototype.addNodeEntity = function <T extends { id: string }>(
+World.prototype.addNodeEntity = function <T extends Array<Comp | string>>(
   bjsNode: Node,
-  comps: CompList<T>
-) {
+  comps: T
+): EntityRaw & CompsListType<T | NodeComp[]> {
   bjsNode.metadata ??= {};
   if (bjsNode instanceof TransformNode) {
     const xformNode = bjsNode as TransformNode;
-    comps.push(xform(xformNode) as unknown as T);
+    comps.push(xform(xformNode) as unknown as T[0]);
 
     if (xformNode.physicsBody) {
-      comps.push(physicsBody(xformNode.physicsBody) as unknown as T);
+      comps.push(physicsBody(xformNode.physicsBody) as unknown as T[0]);
     }
 
     if (bjsNode instanceof Mesh) {
       const meshNode = bjsNode as Mesh;
-      comps.push(mesh(meshNode) as unknown as T);
+      comps.push(mesh(meshNode) as unknown as T[0]);
     }
   }
-  comps.push(node(bjsNode) as unknown as T);
+  comps.push(node(bjsNode) as unknown as T[0]);
   const entity = addEntity(comps);
 
   // inspector support
@@ -147,6 +147,7 @@ World.prototype.addNodeEntity = function <T extends { id: string }>(
       removeEntity(entity);
     }
   });
+  return entity as EntityRaw & CompsListType<T | NodeComp[]>;
 };
 
 /**
@@ -161,7 +162,7 @@ World.prototype.addNodeEntity = function <T extends { id: string }>(
 export const addNodeEntity = defaultWorld.addNodeEntity.bind(defaultWorld);
 
 // --- BJS specific Queries ---
-World.prototype.queryNodes = function <T extends CompFunc>(
+World.prototype.queryNodes = function <T extends CompFunc | Tag>(
   comps: CompFuncList<T>
 ): DefaultCompEntityQuery<T, NodeQueryDefaultComps>[] {
   return this.queryEntities([node, ...comps]) as DefaultCompEntityQuery<
@@ -177,7 +178,7 @@ World.prototype.queryNodes = function <T extends CompFunc>(
  */
 export const queryNodes = defaultWorld.queryNodes.bind(defaultWorld);
 
-World.prototype.queryXforms = function <T extends CompFunc>(
+World.prototype.queryXforms = function <T extends CompFunc | Tag>(
   comps: CompFuncList<T>
 ): DefaultCompEntityQuery<T, XformQueryDefaultComps>[] {
   return this.queryEntities([node, xform, ...comps]) as DefaultCompEntityQuery<
@@ -193,7 +194,7 @@ World.prototype.queryXforms = function <T extends CompFunc>(
  */
 export const queryXforms = defaultWorld.queryXforms.bind(defaultWorld);
 
-World.prototype.queryMeshes = function <T extends CompFunc>(
+World.prototype.queryMeshes = function <T extends CompFunc | Tag>(
   comps: CompFuncList<T>
 ): DefaultCompEntityQuery<T, MeshQueryDefaultComps>[] {
   return this.queryEntities([
