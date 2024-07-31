@@ -1,3 +1,29 @@
+## 0.4.0 (2024-07-31)
+
+
+### 🚀 Features
+
+- alos iterate query during benchmark ([574d9da](https://github.com/Skybox-Technologies/bjs-ecs/commit/574d9da))
+- imporve query perf and bencmarking ([539a87a](https://github.com/Skybox-Technologies/bjs-ecs/commit/539a87a))
+- easy comps for bjs ([dd3c885](https://github.com/Skybox-Technologies/bjs-ecs/commit/dd3c885))
+
+### 🩹 Fixes
+
+- benchmark formatting ([f7e37f1](https://github.com/Skybox-Technologies/bjs-ecs/commit/f7e37f1))
+- rename createComp > createComponent ([c84b421](https://github.com/Skybox-Technologies/bjs-ecs/commit/c84b421))
+- tsconfig issues ([c70df75](https://github.com/Skybox-Technologies/bjs-ecs/commit/c70df75))
+- rename to createComponent ([0110122](https://github.com/Skybox-Technologies/bjs-ecs/commit/0110122))
+- one more tsconfig issue ([e483787](https://github.com/Skybox-Technologies/bjs-ecs/commit/e483787))
+- another tsconfig issue ([b745a58](https://github.com/Skybox-Technologies/bjs-ecs/commit/b745a58))
+
+### 🔥 Performance
+
+- improve adding comps ([1edc253](https://github.com/Skybox-Technologies/bjs-ecs/commit/1edc253))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+
 ## 0.3.5 (2024-06-05)
 
 
