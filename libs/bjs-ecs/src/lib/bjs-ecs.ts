@@ -15,7 +15,7 @@ import {
   Tag,
   World,
   addEntity,
-  createComp,
+  createComponent,
   defaultWorld,
   removeEntity
 } from './ecs';
@@ -38,17 +38,17 @@ type NodeComp = ReturnType<typeof node>;
 type NodeQueryDefaultComps = typeof node;
 
 // Xform
-export const xform = createComp('xform', (xform: TransformNode) => xform);
+export const xform = createComponent('xform', (xform: TransformNode) => xform);
 type XformQueryDefaultComps = typeof xform | NodeQueryDefaultComps;
 
 // MeshComp
-export const mesh = createComp('mesh', (mesh: AbstractMesh) => ({
+export const mesh = createComponent('mesh', (mesh: AbstractMesh) => ({
   mesh,
 }));
 type MeshQueryDefaultComps = typeof mesh | XformQueryDefaultComps;
 
 // PhysicsBody
-export const physicsBody = createComp(
+export const physicsBody = createComponent(
   'physicsBody',
   (physicsBody: PhysicsBody) => ({
     physicsBody,

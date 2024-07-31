@@ -42,7 +42,7 @@ export type CompsListType<T extends Array<Comp | Tag>> = {
 };
 export type Entity<T extends Array<Comp | Tag>> = EntityRaw & CompsListType<T>
 
-export function createComp<T extends (...args: any) => any, I extends string>(
+export function createComponent<T extends (...args: any) => any, I extends string>(
   id: I,
   f: T
 ) {
