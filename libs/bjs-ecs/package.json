@@ -5,9 +5,14 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Skybox-Technologies/bjs-ecs"},
+    "url": "https://github.com/Skybox-Technologies/bjs-ecs"
+  },
   "description": "A simple ECS for Babylon.js",
-  "keywords": ["ecs", "entity-component-system", "babylon.js"],
+  "keywords": [
+    "ecs",
+    "entity-component-system",
+    "babylon.js"
+  ],
   "dependencies": {
     "mitt": "^3.0.1"
   },
@@ -15,7 +20,7 @@
     "@swc/helpers": "~0.5.2"
   },
   "peerDependencies": {
-    "@babylonjs/core": "^7.1.0"
+    "@babylonjs/core": ">=7.1.0"
   },
   "type": "module",
   "main": "./src/index.js",
