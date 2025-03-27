@@ -1,3 +1,14 @@
+## 0.4.1 (2025-03-27)
+
+
+### 🩹 Fixes
+
+- update bjs peer dep ([6d397e9](https://github.com/Skybox-Technologies/bjs-ecs/commit/6d397e9))
+
+### ❤️  Thank You
+
+- Pelle Johnsen
+
 ## 0.4.0 (2024-07-31)
 
 
